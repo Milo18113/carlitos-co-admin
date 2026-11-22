@@ -1,13 +1,16 @@
 import { mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 import ChartCard from '@/components/common/ChartCard.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import DataTable from '@/components/common/DataTable.vue'
+import FormField from '@/components/common/FormField.vue'
 import KpiCard from '@/components/common/KpiCard.vue'
 import ToastHost from '@/components/common/ToastHost.vue'
 import type { Notificacion } from '@/types/notificacion'
 import type { ColumnaTabla } from '@/types/tabla'
+
+import { esperarHasta } from './esperar'
 
 interface Fila {
   id: number
@@ -288,64 +291,113 @@ describe('ToastHost', () => {
   })
 })
 
-describe('ConfirmDialog', () => {
-  // Bootstrap cierra el modal de forma asíncrona y la clase `modal-open` es del body, que se
-  // comparte entre pruebas: se espera a que quede limpio para que una prueba no pise a la siguiente.
-  afterEach(async () => {
-    await vi.waitFor(() => {
-      if (document.body.classList.contains('modal-open')) throw new Error('el body sigue bloqueado')
-    })
+describe('FormField', () => {
+  it('une el label con el control y deja el margen de abajo por defecto', () => {
+    const campo = mount(FormField, { props: { id: 'x', etiqueta: 'Nombre' } })
+
+    expect(campo.find('label').attributes('for')).toBe('x')
+    expect(campo.classes()).toContain('mb-3')
   })
 
-  // `teleport: true` deja el modal dentro del wrapper en vez de moverlo al body.
-  const global = { stubs: { teleport: true } }
+  it('con `compacto` no deja margen de abajo', () => {
+    const campo = mount(FormField, { props: { id: 'x', etiqueta: 'Nombre', compacto: true } })
+
+    expect(campo.classes()).not.toContain('mb-3')
+  })
+
+  it('un error reemplaza a la ayuda y le da al control su id para `aria-describedby`', () => {
+    const campo = mount(FormField, {
+      props: { id: 'x', etiqueta: 'Nombre', ayuda: 'Ayuda', error: 'Escribe el nombre' },
+      slots: { default: '<input class="control" />' },
+    })
+
+    expect(campo.text()).toContain('Escribe el nombre')
+    expect(campo.text()).not.toContain('Ayuda')
+    expect(campo.find('#x-error').exists()).toBe(true)
+  })
+})
+
+describe('ConfirmDialog', () => {
+  // Se usa el Teleport real, como la app: el modal cuelga del body y se busca ahí. El stub de Vue Test
+  // Utils (`stubs: { teleport: true }`) recrea el DOM del modal cada vez que cambian las props, y
+  // Bootstrap queda controlando un elemento que ya no es el que ve el componente: las pruebas
+  // fallaban de forma intermitente por eso, no por un error del componente.
   const props = {
     abierto: false,
     titulo: '¿Eliminar este pago?',
     mensaje: 'Se eliminará el pago PAG-0017 de $ 300,00.',
   }
 
-  it('muestra la pregunta, la consecuencia y los dos botones', () => {
-    const dialogo = mount(ConfirmDialog, { props, global })
+  const modalEnBody = () => document.body.querySelector<HTMLElement>('.modal')
+  const botonDelDialogo = (selector: '.btn-danger' | '.btn-neutral') =>
+    modalEnBody()?.querySelector<HTMLButtonElement>(`.modal-footer ${selector}`)
 
-    expect(dialogo.find('h2').text()).toBe('¿Eliminar este pago?')
-    expect(dialogo.text()).toContain('Se eliminará el pago PAG-0017 de $ 300,00.')
-    expect(dialogo.findAll('.modal-footer .btn').map((boton) => boton.text())).toEqual([
-      'Cancelar',
-      'Eliminar',
-    ])
+  function montar(cambios: Partial<typeof props & { procesando: boolean }> = {}) {
+    return mount(ConfirmDialog, { props: { ...props, ...cambios } })
+  }
+
+  async function esperarQueQuedeLimpio() {
+    await esperarHasta(() => {
+      if (document.querySelector('.modal-backdrop')) throw new Error('queda un fondo oscuro')
+      if (document.body.classList.contains('modal-open')) throw new Error('el body sigue bloqueado')
+    })
+  }
+
+  // Bootstrap cierra el modal de forma asíncrona y la clase `modal-open` es del body, que se
+  // comparte entre pruebas: se espera a que quede limpio para que una prueba no pise a la siguiente.
+  afterEach(async () => {
+    await esperarHasta(() => {
+      if (document.body.classList.contains('modal-open')) throw new Error('el body sigue bloqueado')
+    })
+  })
+
+  it('muestra la pregunta, la consecuencia y los dos botones', () => {
+    const dialogo = montar()
+    const modal = modalEnBody()
+
+    expect(modal?.querySelector('h2')?.textContent).toBe('¿Eliminar este pago?')
+    expect(modal?.textContent).toContain('Se eliminará el pago PAG-0017 de $ 300,00.')
+    const botones = [...(modal?.querySelectorAll('.modal-footer .btn') ?? [])].map((boton) =>
+      boton.textContent?.trim(),
+    )
+    expect(botones).toEqual(['Cancelar', 'Eliminar'])
+    dialogo.unmount()
   })
 
   it('el título del modal es el nombre accesible del diálogo', () => {
-    const dialogo = mount(ConfirmDialog, { props, global })
+    const dialogo = montar()
+    const modal = modalEnBody()
 
-    const idTitulo = dialogo.find('h2').attributes('id')
+    const idTitulo = modal?.querySelector('h2')?.id
     expect(idTitulo).toBeTruthy()
-    expect(dialogo.find('.modal').attributes('aria-labelledby')).toBe(idTitulo)
+    expect(modal?.getAttribute('aria-labelledby')).toBe(idTitulo)
+    dialogo.unmount()
   })
 
-  it('confirmar y cancelar son eventos, no efectos: el componente no decide nada', async () => {
-    const dialogo = mount(ConfirmDialog, { props, global })
+  it('confirmar y cancelar son eventos, no efectos: el componente no decide nada', () => {
+    const dialogo = montar()
 
-    await dialogo.find('.btn-danger').trigger('click')
-    await dialogo.find('.btn-neutral').trigger('click')
+    botonDelDialogo('.btn-danger')?.click()
+    botonDelDialogo('.btn-neutral')?.click()
 
     expect(dialogo.emitted('confirmar')).toHaveLength(1)
     expect(dialogo.emitted('cancelar')).toHaveLength(1)
+    dialogo.unmount()
   })
 
   it('mientras procesa deshabilita los dos botones y muestra el spinner', () => {
-    const dialogo = mount(ConfirmDialog, { props: { ...props, procesando: true }, global })
+    const dialogo = montar({ procesando: true })
 
-    const botones = dialogo.findAll('.modal-footer .btn')
-    expect(botones.every((boton) => boton.attributes('disabled') !== undefined)).toBe(true)
-    expect(dialogo.find('.spinner-border').exists()).toBe(true)
+    expect(botonDelDialogo('.btn-danger')?.disabled).toBe(true)
+    expect(botonDelDialogo('.btn-neutral')?.disabled).toBe(true)
+    expect(modalEnBody()?.querySelector('.spinner-border')).not.toBeNull()
+    dialogo.unmount()
   })
 
   it('al pasar `abierto` a true Bootstrap muestra el modal', async () => {
-    const dialogo = mount(ConfirmDialog, { props, global, attachTo: document.body })
-    // Se guarda el elemento antes de abrir: Bootstrap lo reubica en el DOM al mostrarlo.
-    const modal = dialogo.find('.modal').element
+    const dialogo = montar()
+    const modal = modalEnBody()
+    if (!modal) throw new Error('el modal no está en el body')
 
     await dialogo.setProps({ abierto: true })
     await esperarEvento(modal, 'shown.bs.modal')
@@ -355,27 +407,21 @@ describe('ConfirmDialog', () => {
   })
 
   it('Esc lo cierra por su cuenta y avisa con `cancelar` para que el padre se entere', async () => {
-    const dialogo = mount(ConfirmDialog, {
-      props: { ...props, abierto: true },
-      global,
-      attachTo: document.body,
-    })
-    const modal = dialogo.find('.modal').element
+    const dialogo = montar({ abierto: true })
+    const modal = modalEnBody()
+    if (!modal) throw new Error('el modal no está en el body')
     await esperarEvento(modal, 'shown.bs.modal')
 
     modal.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
 
-    await vi.waitFor(() => expect(dialogo.emitted('cancelar')).toHaveLength(1))
+    await esperarHasta(() => expect(dialogo.emitted('cancelar')).toHaveLength(1))
     dialogo.unmount()
   })
 
   it('si el padre lo cierra (abierto=false) no emite `cancelar`', async () => {
-    const dialogo = mount(ConfirmDialog, {
-      props: { ...props, abierto: true },
-      global,
-      attachTo: document.body,
-    })
-    const modal = dialogo.find('.modal').element
+    const dialogo = montar({ abierto: true })
+    const modal = modalEnBody()
+    if (!modal) throw new Error('el modal no está en el body')
     await esperarEvento(modal, 'shown.bs.modal')
 
     await dialogo.setProps({ abierto: false })
@@ -386,64 +432,72 @@ describe('ConfirmDialog', () => {
   })
 
   it('si el padre pide cerrar mientras se abre, termina cerrado (Bootstrap ignora el hide a mitad de la animación)', async () => {
-    const dialogo = mount(ConfirmDialog, { props, global, attachTo: document.body })
-    const modal = dialogo.find('.modal').element
+    const dialogo = montar()
+    const modal = modalEnBody()
+    if (!modal) throw new Error('el modal no está en el body')
 
     await dialogo.setProps({ abierto: true })
     await dialogo.setProps({ abierto: false })
 
-    await vi.waitFor(() => expect(document.querySelector('.modal-backdrop')).toBeNull())
+    await esperarQueQuedeLimpio()
     expect(modal.classList.contains('show')).toBe(false)
-    expect(document.body.classList.contains('modal-open')).toBe(false)
     expect(dialogo.emitted('cancelar')).toBeUndefined()
     dialogo.unmount()
   })
 
   it('si el padre vuelve a pedir abrir mientras se cierra, termina abierto', async () => {
-    const dialogo = mount(ConfirmDialog, {
-      props: { ...props, abierto: true },
-      global,
-      attachTo: document.body,
-    })
-    const modal = dialogo.find('.modal').element
+    const dialogo = montar({ abierto: true })
+    const modal = modalEnBody()
+    if (!modal) throw new Error('el modal no está en el body')
     await esperarEvento(modal, 'shown.bs.modal')
 
     await dialogo.setProps({ abierto: false })
     await dialogo.setProps({ abierto: true })
 
-    await vi.waitFor(() => expect(modal.classList.contains('show')).toBe(true))
+    await esperarHasta(() => expect(modal.classList.contains('show')).toBe(true))
     expect(dialogo.emitted('cancelar')).toBeUndefined()
     dialogo.unmount()
   })
 
   it('si se desmonta con el diálogo abierto no deja el fondo oscuro ni el scroll bloqueado', async () => {
-    const dialogo = mount(ConfirmDialog, {
-      props: { ...props, abierto: true },
-      global,
-      attachTo: document.body,
-    })
+    const dialogo = montar({ abierto: true })
+    const modal = modalEnBody()
+    if (!modal) throw new Error('el modal no está en el body')
     // Es el caso de "volver atrás con el modal abierto": primero tiene que haber terminado de abrirse.
-    await esperarEvento(dialogo.find('.modal').element, 'shown.bs.modal')
+    await esperarEvento(modal, 'shown.bs.modal')
     expect(document.body.classList.contains('modal-open')).toBe(true)
 
     dialogo.unmount()
 
-    await vi.waitFor(() => expect(document.querySelector('.modal-backdrop')).toBeNull())
-    expect(document.body.classList.contains('modal-open')).toBe(false)
+    await esperarQueQuedeLimpio()
     expect(document.querySelector('.modal')).toBeNull()
   })
 
   it('si se desmonta mientras todavía se está abriendo tampoco deja residuos ni lanza errores', async () => {
-    const dialogo = mount(ConfirmDialog, {
-      props: { ...props, abierto: true },
-      global,
-      attachTo: document.body,
-    })
+    const dialogo = montar({ abierto: true })
 
     dialogo.unmount() // inmediatamente, sin esperar a que termine la animación
 
-    await vi.waitFor(() => expect(document.querySelector('.modal-backdrop')).toBeNull())
-    expect(document.body.classList.contains('modal-open')).toBe(false)
+    await esperarQueQuedeLimpio()
     expect(document.querySelector('.modal')).toBeNull()
+  })
+
+  it('desmontar en cualquier punto de un cierre y una reapertura no deja residuos', async () => {
+    // Era el caso que se atascaba: con un retardo de 12 a 18 ms el desmontaje caía justo entre el
+    // `hidden` y el `shown` de la reapertura. Se prueba a lo largo de toda la animación.
+    for (const retardo of [0, 4, 8, 12, 15, 18, 22, 30, 45]) {
+      const dialogo = montar({ abierto: true })
+      const modal = modalEnBody()
+      if (!modal) throw new Error('el modal no está en el body')
+      await esperarEvento(modal, 'shown.bs.modal')
+      await dialogo.setProps({ abierto: false })
+      await dialogo.setProps({ abierto: true })
+      await new Promise((resolver) => setTimeout(resolver, retardo))
+
+      dialogo.unmount()
+
+      await esperarQueQuedeLimpio()
+      expect(document.querySelector('.modal')).toBeNull()
+    }
   })
 })

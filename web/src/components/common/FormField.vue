@@ -10,6 +10,8 @@ const props = defineProps<{
   error?: string | null
   /** Ayuda debajo del control (se oculta mientras hay un error). */
   ayuda?: string
+  /** Sin margen de abajo: para el último campo de una tarjeta, que ya tiene su propio padding. */
+  compacto?: boolean
 }>()
 
 const idMensaje = computed(() => {
@@ -19,7 +21,7 @@ const idMensaje = computed(() => {
 </script>
 
 <template>
-  <div class="mb-3">
+  <div :class="{ 'mb-3': !compacto }">
     <label :for="id" class="form-label">{{ etiqueta }}</label>
     <!-- El control lo pone quien usa el componente; recibe lo que necesita para ser accesible -->
     <slot :invalido="Boolean(error)" :describedby="idMensaje" />

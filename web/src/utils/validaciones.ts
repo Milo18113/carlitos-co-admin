@@ -75,3 +75,11 @@ export function validarMonto(texto: string, nombre = 'El monto'): Validacion {
 export function validarEnteroNoNegativo(texto: string, nombre: string): Validacion {
   return aEntero(texto) === null ? `${nombre} debe ser un número entero, 0 o más` : null
 }
+
+/** Porcentaje de 0 a 100 con hasta 2 decimales (`tDetalleFactura.porcentaje_descuento` es DECIMAL(5,2)). */
+export function validarPorcentaje(texto: string, nombre = 'El descuento'): Validacion {
+  const porcentaje = aNumero(texto)
+  if (porcentaje === null || porcentaje > 100) return `${nombre} va de 0 a 100`
+  if (!/^\d+([.,]\d{1,2})?$/.test(texto.trim())) return `${nombre} admite hasta 2 decimales`
+  return null
+}

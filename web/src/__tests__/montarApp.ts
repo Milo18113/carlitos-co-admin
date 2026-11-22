@@ -11,6 +11,8 @@ import { reiniciarBaseMock } from '@/services/mocks/estado'
 import { limpiarSesionMock } from '@/services/mocks/sesionMock'
 import { espera } from '@/services/mocks/simulador'
 
+import { esperarHasta } from './esperar'
+
 /**
  * Ayudas para las pruebas que montan la app completa (router + Pinia + mocks). Cada spec debe
  * declarar su propio `vi.mock('@/config/env', ...)`: un `vi.mock` solo se aplica en el archivo
@@ -51,7 +53,7 @@ export async function desmontarApp(): Promise<void> {
   montada = undefined
   // Bootstrap cierra los modales de forma asíncrona y la clase `modal-open` es del body, que se
   // comparte entre pruebas: se espera a que quede limpio para que una prueba no pise a la siguiente.
-  await vi.waitFor(() => {
+  await esperarHasta(() => {
     if (document.body.classList.contains('modal-open')) throw new Error('el body sigue bloqueado')
   })
   document.body.innerHTML = ''
