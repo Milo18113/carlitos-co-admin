@@ -1,3 +1,5 @@
+import type { ItemCatalogo } from './catalogo'
+
 /** Fila de `GET /api/repuestos`: columnas de `tProducto` (schema.sql), sin renombrar. */
 export interface Repuesto {
   codigo_oe: string
@@ -28,4 +30,11 @@ export interface TrasladoNuevo {
   bodega_destino: string
   cantidad: number
   ubicacion_destino: string | null
+}
+
+/** Los catálogos que necesita `RepuestoForm` para sus `<select>`. */
+export interface CatalogosRepuesto {
+  marcas: ItemCatalogo[]
+  categorias: ItemCatalogo[]
+  bodegas: ItemCatalogo[]
 }

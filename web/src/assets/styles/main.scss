@@ -33,6 +33,25 @@
   max-width: 25rem;
 }
 
+// El ícono de un badge acompaña a un texto de 12px: va a 12px (DESIGN.md: `.badge .cc-icon`), no a 18px.
+.badge .bi.cc-icon {
+  font-size: 0.75rem;
+}
+
+// La tabla solo se desplaza en horizontal. `.table-responsive` es `overflow-x: auto`, y por regla de CSS
+// eso vuelve `auto` también al eje vertical: con 1px de diferencia por redondeo la tabla mostraba su
+// propia barra vertical dentro de la de la vista. El único scroll vertical es el de la vista.
+.cc-table-wrap .table-responsive {
+  overflow-y: hidden;
+}
+
+// Las cifras ("$ 58,90") y los identificadores ("04465-0K240", facturas) no se parten en dos líneas
+// aunque la tabla quede angosta (por ejemplo con el panel lateral abierto): la tabla hace scroll.
+.cc-table-wrap td.tabular,
+.cc-table-wrap td.cc-cell-main {
+  white-space: nowrap;
+}
+
 // DataTable con filas activables (`seleccionable`): puntero y foco de teclado visible.
 // El selector repite `.cc-table-wrap tbody tr` para ganarle a `cursor: default` de _components.scss.
 .cc-table-wrap tbody tr.cc-row-selectable {
@@ -41,6 +60,45 @@
 .cc-row-selectable:focus-visible {
   outline: 2px solid $primary;
   outline-offset: -2px;
+}
+
+// Panel lateral de formularios (360px, DESIGN.md › Layout). El destino del Teleport no cuenta como
+// caja: así el `<aside class="cc-sidepanel">` es hijo directo de `.cc-shell__body` y se pone al lado
+// del contenido.
+.cc-sidepanel-host {
+  display: contents;
+}
+// Debajo de `lg` el panel baja bajo el contenido y todo el cuerpo hace scroll junto.
+@include media-breakpoint-down(lg) {
+  .cc-shell__body {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .cc-shell__content {
+    flex: none;
+    overflow: visible;
+  }
+  .cc-sidepanel {
+    width: 100%;
+    flex: none;
+    overflow: visible;
+    border-left: 0;
+    border-top: 1px solid $border-color;
+  }
+}
+
+// Botones de un formulario de panel: pegados al borde de abajo para que se vean aunque el formulario
+// sea más alto que la pantalla. El -1.25rem compensa el padding del panel.
+.cc-form-actions {
+  position: sticky;
+  bottom: -1.25rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding: 0.75rem 0 0.25rem;
+  background: $white;
+  border-top: 1px solid $border-color;
 }
 
 // El offcanvas del menú móvil mide lo mismo que el sidebar de escritorio.

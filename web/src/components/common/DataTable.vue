@@ -86,9 +86,10 @@ function activar(fila: T): void {
               v-for="columna in columnas"
               :key="columna.clave"
               scope="col"
-              :class="{ 'text-end': esNumerico(columna.formato) }"
+              :class="{ 'text-end': esNumerico(columna.formato) || columna.acciones }"
             >
-              {{ columna.etiqueta }}
+              <!-- Una columna de botones no necesita encabezado a la vista, pero sí para el lector de pantalla -->
+              <span :class="{ 'visually-hidden': columna.acciones }">{{ columna.etiqueta }}</span>
             </th>
           </tr>
         </thead>
@@ -117,6 +118,7 @@ function activar(fila: T): void {
               :key="columna.clave"
               :class="{
                 'text-end tabular': esNumerico(columna.formato),
+                'text-end': columna.acciones,
                 'cc-cell-main': columna.principal,
               }"
             >

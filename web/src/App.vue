@@ -86,6 +86,8 @@ async function cerrarSesion(): Promise<void> {
         <main class="cc-shell__content">
           <RouterView />
         </main>
+        <!-- Destino del `SidePanel` de la view activa (ver SidePanel.vue) -->
+        <div id="panel-lateral" class="cc-sidepanel-host"></div>
       </div>
     </div>
   </div>

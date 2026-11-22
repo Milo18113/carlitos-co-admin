@@ -1,3 +1,5 @@
+import type { ItemCatalogo } from './catalogo'
+
 /** Códigos de `tTipoIdentificacion` del modelo. */
 export const TIPO_IDENTIFICACION = {
   RUC: '04',
@@ -27,4 +29,10 @@ export interface ClienteNuevo {
   email: string | null
   direccion: string | null
   codigo_ciudad: string | null
+}
+
+/** Los catálogos que necesita `ClienteForm` para sus `<select>`. */
+export interface CatalogosCliente {
+  tiposIdentificacion: ItemCatalogo[]
+  ciudades: ItemCatalogo[]
 }

@@ -13,4 +13,9 @@ export interface ColumnaTabla<T> {
   formato?: FormatoColumna
   /** Identificador de la fila: se muestra en negrita. */
   principal?: boolean
+  /**
+   * Columna de botones de la fila ("Ingresar stock", "Eliminar"): su encabezado solo lo lee un
+   * lector de pantalla, la celda va a la derecha y el buscador no la tiene en cuenta.
+   */
+  acciones?: boolean
 }

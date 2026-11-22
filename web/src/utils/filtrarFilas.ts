@@ -23,6 +23,8 @@ export function filtrarFilas<T extends object>(
   if (buscada === '') return filas
   return filas.filter((fila) => {
     const texto = columnas
+      // Una columna de botones no tiene texto que buscar.
+      .filter((columna) => !columna.acciones)
       .map((columna) => formatearCelda(fila[columna.clave], columna.formato))
       .join(' ')
     return normalizar(texto).includes(buscada)

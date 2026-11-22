@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import DataTable from '@/components/common/DataTable.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import ErrorDeCarga from '@/components/common/ErrorDeCarga.vue'
 import type { FilaReporte } from '@/types/reportes'
 import type { ColumnaTabla } from '@/types/tabla'
 
@@ -24,11 +25,12 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div v-if="error" class="cc-table-wrap" role="alert">
-    <EmptyState icono="exclamation-triangle" titulo="No se pudo cargar el reporte" :texto="error">
-      <button type="button" class="btn btn-primary" @click="emit('reintentar')">Reintentar</button>
-    </EmptyState>
-  </div>
+  <ErrorDeCarga
+    v-if="error"
+    titulo="No se pudo cargar el reporte"
+    :mensaje="error"
+    @reintentar="emit('reintentar')"
+  />
 
   <DataTable
     v-else

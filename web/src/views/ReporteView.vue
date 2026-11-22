@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 
 import BotonPdf from '@/components/reportes/BotonPdf.vue'
 import ReporteTable from '@/components/reportes/ReporteTable.vue'
 import logoUrl from '@/assets/logo.jpg'
+import { useFiltroUrl } from '@/composables/useFiltroUrl'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificacionesStore } from '@/stores/notificaciones'
 import { useReportesStore } from '@/stores/reportes'
@@ -23,8 +23,6 @@ const props = defineProps<{
 const reportes = useReportesStore()
 const auth = useAuthStore()
 const notificaciones = useNotificacionesStore()
-const route = useRoute()
-const router = useRouter()
 
 const generando = ref(false)
 
@@ -42,13 +40,7 @@ watch(
   { immediate: true },
 )
 
-/** La búsqueda vive en la URL (`?q=`): se puede compartir el link y sobrevive a recargar. */
-const filtro = computed({
-  get: () => (typeof route.query.q === 'string' ? route.query.q : ''),
-  set: (valor: string) => {
-    void router.replace({ query: valor.trim() === '' ? {} : { q: valor } })
-  },
-})
+const filtro = useFiltroUrl()
 
 const filasVisibles = computed(() =>
   filtrarFilas(filas.value, definicion.value.columnas, filtro.value),

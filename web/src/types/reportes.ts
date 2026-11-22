@@ -71,6 +71,9 @@ export interface FilasPorVista {
 
 export type VistaReporte = keyof FilasPorVista
 
+/** Lo que devuelve cada vista: la lista de sus filas. */
+export type FilasPorReporte = { [V in VistaReporte]: FilasPorVista[V][] }
+
 /** Todo lo que la UI necesita saber de un reporte: la pantalla, el menú y el PDF salen de aquí. */
 export interface DefinicionReporte<F> {
   titulo: string
