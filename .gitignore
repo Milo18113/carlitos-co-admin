@@ -1,0 +1,8 @@
+# agent directories
+/.claude
+
+# entregables
+*.zip
+
+# entorno
+.env

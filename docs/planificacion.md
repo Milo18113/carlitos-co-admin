@@ -86,6 +86,58 @@ El MVP son 7 módulos que cubren todos los requisitos del enunciado; compras, de
 
 **Conteo del modelo actual contra el enunciado:** 10 tablas principales (Cliente, Empleado, Proveedor, Producto, Modelo, Bodega, Compra, Factura, Pago, NotaCredito), 6 diccionarios (TipoIdentificacion, Ciudad, Rol, Categoria, Marca, FormaPago) y 6 tablas N:M. Cumple el rango de 8 a 10 y las 3 N:M, pero queda en el límite: no agregar tablas principales sin quitar otra.
 
+## Casos de uso
+
+Sirve para confirmar qué tiene que hacer el sistema antes de programar el front. Está armado sobre lo que ya existe en `database/procedures.sql` y `database/views.sql`. Los casos marcados con ⚠ todavía no tienen procedure detrás. Los dos actores son provisionales hasta que Carlitos diga quién usa el panel (ver *Preguntas para Carlitos*).
+
+```mermaid
+flowchart LR
+  EMP["«actor»<br/>Empleado"]
+  ADM["«actor»<br/>Administrador"]
+  ADM -.->|"generalización<br/>(hace todo lo del Empleado)"| EMP
+
+  subgraph SYS["carlitos-co-admin"]
+    direction TB
+    CU01(["CU-01 Iniciar sesión"])
+    CU02(["CU-02 Cerrar sesión"])
+    CU03(["CU-03 Ver dashboard"])
+    CU04(["CU-04 Consultar reporte"])
+    CU05(["CU-05 Descargar reporte en PDF"])
+    CU06(["CU-06 Registrar o actualizar cliente"])
+    CU07(["CU-07 Ingresar repuesto"])
+    CU08(["CU-08 Trasladar repuesto entre bodegas"])
+    CU09(["CU-09 Emitir factura ⚠"])
+    CU10(["CU-10 Registrar pago"])
+    CU11(["CU-11 Eliminar pago del día"])
+    CU12(["CU-12 Contratar o recontratar empleado"])
+    CU13(["CU-13 Dar de baja empleado ⚠"])
+  end
+
+  EMP --- CU01 & CU02 & CU03 & CU04
+  EMP --- CU06 & CU07 & CU08 & CU09 & CU10 & CU11
+  ADM --- CU12 & CU13
+  CU05 -.->|«extend»| CU04
+  CU03 -.->|«include»| CU04
+```
+
+| CU | Qué hace | Detrás en la base | Modificador |
+| --- | --- | --- | --- |
+| CU-01 | Valida usuario y contraseña (hash bcrypt) contra `tEmpleado` y abre sesión con el rol | `SELECT` sobre `tEmpleado` + `tRol` | — |
+| CU-02 | Cierra la sesión | — | — |
+| CU-03 | KPIs y gráficos armados con las vistas | Las 5 vistas | — |
+| CU-04 | Tabla de cada vista con filtros | `repuestos_disponibles`, `Cuentas_por_cobrar`, `Empleados`, `Bodegas_Disponibles`, `Desempeno_marca` | — |
+| CU-05 | Exporta la tabla de CU-04 a PDF | — | — |
+| CU-06 | Alta de cliente; si ya existe, actualiza sus datos | `registrar_cliente` | INSERT / UPDATE |
+| CU-07 | Crea el repuesto con su stock inicial, o suma stock si ya existe | `ingresar_repuesto` | INSERT / UPDATE |
+| CU-08 | Mueve stock de una bodega a otra | `trasladar_repuesto` | UPDATE / INSERT / DELETE |
+| CU-09 ⚠ | Cabecera + detalle de factura en una sola transacción | Sin procedure: decidir entre crear `emitir_factura` o una transacción JDBC desde el API | INSERT |
+| CU-10 | Abono a una factura sin pasar el saldo | `registrar_pago` | INSERT |
+| CU-11 | Borra un pago, solo si se registró hoy | `eliminar_pago` | DELETE |
+| CU-12 | Alta de empleado, o reactivación si la cédula ya existía | `contratar_empleado` | INSERT / UPDATE |
+| CU-13 ⚠ | Marca `activo = 0` | Sin procedure | UPDATE |
+
+Con CU-06, CU-08 y CU-11 ya se cubren INSERT, UPDATE y DELETE desde el front. CU-09 es el único hueco grande: sin él no hay facturas nuevas que muestren las vistas de ventas.
+
 ## Preguntas para Carlitos
 
 Sí hay que preguntarle: las 4 primeras pueden cambiar el DER, así que Andrés debería hacerlas primero, idealmente antes del 18 nov 2026. Si alguna ya se habló al hacer el modelo, se marca y se anota la respuesta debajo.
