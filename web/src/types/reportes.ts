@@ -68,3 +68,22 @@ export interface FilasPorVista {
 }
 
 export type VistaReporte = keyof FilasPorVista
+
+/**
+ * Definición de cada reporte. Por ahora solo el título (lo usan el topbar y la navegación);
+ * el bloque E1 agrega columnas y formatos en este mismo mapa.
+ */
+export const REPORTES = {
+  'repuestos-disponibles': { titulo: 'Repuestos disponibles' },
+  'cuentas-por-cobrar': { titulo: 'Cuentas por cobrar' },
+  empleados: { titulo: 'Empleados' },
+  bodegas: { titulo: 'Bodegas' },
+  'desempeno-marca': { titulo: 'Desempeño por marca' },
+} as const satisfies Record<VistaReporte, { titulo: string }>
+
+export const VISTAS_REPORTE = Object.keys(REPORTES) as VistaReporte[]
+
+/** Valida el `:vista` de la ruta antes de usarlo como clave. */
+export function esVistaReporte(valor: unknown): valor is VistaReporte {
+  return VISTAS_REPORTE.some((vista) => vista === valor)
+}

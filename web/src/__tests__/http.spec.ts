@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { alRecibirNoAutorizado } from '@/services/avisoNoAutorizado'
 import { ErrorServidor, NoAutorizadoError, ReglaNegocioError } from '@/services/errores'
 import { eliminar, enviar, obtener } from '@/services/http'
 
@@ -23,6 +24,7 @@ function fetchQueResponde(
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  alRecibirNoAutorizado(undefined)
 })
 
 describe('http.ts', () => {
@@ -59,6 +61,19 @@ describe('http.ts', () => {
 
     expect(error).toBeInstanceOf(NoAutorizadoError)
     expect((error as Error).message).toBe('no hay sesión')
+  })
+
+  it('avisa a la escucha cuando llega un 401, pero no con un 422', async () => {
+    const escucha = vi.fn<() => void>()
+    alRecibirNoAutorizado(escucha)
+
+    vi.stubGlobal('fetch', fetchQueResponde(422, { mensaje: 'regla' }))
+    await obtener('/pagos').catch(() => undefined)
+    expect(escucha).not.toHaveBeenCalled()
+
+    vi.stubGlobal('fetch', fetchQueResponde(401, { mensaje: 'sin sesión' }))
+    await obtener('/pagos').catch(() => undefined)
+    expect(escucha).toHaveBeenCalledTimes(1)
   })
 
   it('traduce un 422 a ReglaNegocioError y conserva el texto del procedure', async () => {

@@ -1,0 +1,4 @@
+# Copias exactas de design/system/: se actualizan copiando el archivo, nunca reformateándolo
+# (un formateo vuelve inútil compararlas con el diseño). Ver docs/plan-frontend.md › 2.
+src/assets/styles/_tokens.scss
+src/assets/styles/_components.scss

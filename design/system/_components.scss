@@ -41,7 +41,7 @@ body { font-variant-numeric: normal; }
   --bs-btn-disabled-color: #{$gray-500};   --bs-btn-disabled-bg: #E9E5DB;  --bs-btn-disabled-border-color: #E9E5DB;
 }
 .btn-icon { width: 36px; padding: 0; }
-.btn-icon.btn-sm { --cc-icon-btn-size: 28px; }
+.btn-icon.btn-sm { --cc-icon-btn-size: 28px; width: var(--cc-icon-btn-size); height: var(--cc-icon-btn-size); }
 .btn-split-divider { border-left: 1px solid rgba($white, .24); }   // divisor interno del split sobre botón oscuro
 
 // Inputs y selects con la sombra "xs" del video (el $enable-shadows de Bootstrap la haría aparecer también en botones)

@@ -212,7 +212,7 @@ Los tipos de las respuestas están en `api/src/domain/models/` y en `web/src/typ
 | `/repuestos` | `repuestos` | RepuestosView (incluye traslados) | CU-07, CU-08 | empleado |
 | `/facturas/nueva` | `factura-nueva` | FacturaNuevaView | CU-09 ⚠ | empleado |
 | `/pagos` | `pagos` | PagosView | CU-10, CU-11 | empleado |
-| `/empleados` | `empleados` | EmpleadosView | CU-12, CU-13 | admin |
+| `/administracion-empleados` | `administracion-empleados` | AdministracionEmpleadosView | CU-12, CU-13 | admin |
 | `/reportes/:vista` | `reporte` | ReporteView (una sola, parametrizada por vista) | CU-04, CU-05 | empleado |
 | `/:pathMatch(.*)*` | `no-encontrado` | NotFoundView | — | pública |
 

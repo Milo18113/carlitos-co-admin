@@ -3,3 +3,37 @@
 @import 'tokens';
 @import 'bootstrap/scss/bootstrap';
 @import 'components';
+
+// ---------- Ajustes propios sobre los archivos copiados de design/ ----------
+// (design/system/_components.scss se copia tal cual; lo que cambia en la app va aquí)
+
+// Los íconos del diseño son SVG con trazo; la app usa Bootstrap Icons, que son fuente y toman el
+// tamaño del font-size. Se mantienen los 18px (y 32px en estados vacíos) de DESIGN.md › Iconografía.
+.bi.cc-icon {
+  display: inline-block;
+  font-size: 1.125rem;
+  line-height: 1;
+  text-align: center;
+}
+.bi.cc-icon--lg {
+  font-size: 2rem;
+}
+
+// Logo sin marco hasta que exista la versión con fondo transparente (DESIGN.md › Pendiente).
+.cc-brand__mark {
+  border: 0;
+}
+
+// Fondo "surface-subtle" para páginas completas (login), como el fondo de .cc-shell__content.
+.cc-surface-subtle {
+  background: var(--cc-surface-subtle);
+}
+.cc-login {
+  width: 100%;
+  max-width: 25rem;
+}
+
+// El offcanvas del menú móvil mide lo mismo que el sidebar de escritorio.
+.cc-offcanvas-menu {
+  --bs-offcanvas-width: var(--cc-sidebar-width);
+}

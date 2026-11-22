@@ -1,6 +1,7 @@
 import { env } from '@/config/env'
 import type { CuerpoError } from '@/types/api'
 
+import { avisarNoAutorizado } from './avisoNoAutorizado'
 import { ErrorServidor, NoAutorizadoError, ReglaNegocioError } from './errores'
 
 type Metodo = 'GET' | 'POST' | 'DELETE'
@@ -67,7 +68,10 @@ async function solicitar<T>(
   // `fetch` no lanza en 401/422/500: hay que revisar `ok`.
   if (!respuesta.ok) {
     const mensaje = await leerMensaje(respuesta)
-    if (respuesta.status === 401) throw new NoAutorizadoError(mensaje)
+    if (respuesta.status === 401) {
+      avisarNoAutorizado()
+      throw new NoAutorizadoError(mensaje)
+    }
     if (respuesta.status === 422)
       throw new ReglaNegocioError(mensaje ?? 'La operación no es válida.')
     throw new ErrorServidor()

@@ -1,3 +1,4 @@
+import { avisarNoAutorizado } from '@/services/avisoNoAutorizado'
 import { NoAutorizadoError } from '@/services/errores'
 import type { Sesion } from '@/types/empleado'
 
@@ -52,6 +53,9 @@ export function limpiarSesionMock(): void {
 /** Equivale al middleware `requireAuth` del API: sin sesión, 401. */
 export function exigirSesion(): Sesion {
   const sesion = leerSesionMock()
-  if (!sesion) throw new NoAutorizadoError()
+  if (!sesion) {
+    avisarNoAutorizado()
+    throw new NoAutorizadoError()
+  }
   return sesion
 }
