@@ -119,6 +119,7 @@ function activar(fila: T): void {
               :class="{
                 'text-end tabular': esNumerico(columna.formato),
                 'text-end': columna.acciones,
+                'text-nowrap': columna.sinSaltos || columna.formato === 'fecha',
                 'cc-cell-main': columna.principal,
               }"
             >

@@ -46,11 +46,29 @@ export async function montarApp(ruta: string) {
   return { wrapper: montada, router, pinia }
 }
 
-export function desmontarApp(): void {
+export async function desmontarApp(): Promise<void> {
   montada?.unmount()
   montada = undefined
+  // Bootstrap cierra los modales de forma asíncrona y la clase `modal-open` es del body, que se
+  // comparte entre pruebas: se espera a que quede limpio para que una prueba no pise a la siguiente.
+  await vi.waitFor(() => {
+    if (document.body.classList.contains('modal-open')) throw new Error('el body sigue bloqueado')
+  })
   document.body.innerHTML = ''
   vi.restoreAllMocks()
+}
+
+/** El `ConfirmDialog` abierto, si lo hay (vive en el `body`, fuera de la app). */
+export function dialogoAbierto(): HTMLElement | null {
+  return document.querySelector<HTMLElement>('.modal.show')
+}
+
+/** Pulsa "Confirmar" (el botón de peligro) o "Cancelar" del `ConfirmDialog` abierto. */
+export function pulsarEnElDialogo(boton: 'confirmar' | 'cancelar'): void {
+  const selector = boton === 'confirmar' ? '.btn-danger' : '.btn-neutral'
+  const elemento = dialogoAbierto()?.querySelector<HTMLButtonElement>(`.modal-footer ${selector}`)
+  if (!elemento) throw new Error('No hay un diálogo abierto con ese botón')
+  elemento.click()
 }
 
 /** Las filas con datos de la tabla (las 5 del skeleton de carga son `aria-hidden` y no cuentan). */

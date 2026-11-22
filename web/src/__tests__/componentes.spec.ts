@@ -74,6 +74,46 @@ describe('DataTable', () => {
     expect(celdas[0]?.classes()).toContain('cc-cell-main')
   })
 
+  it('las fechas y las columnas marcadas `sinSaltos` no se parten en varias líneas', () => {
+    const conSinSaltos: ColumnaTabla<Fila>[] = [
+      { clave: 'nombre', etiqueta: 'Cliente' },
+      { clave: 'fecha', etiqueta: 'Fecha', formato: 'fecha' },
+      { clave: 'nota', etiqueta: 'Nota', sinSaltos: true },
+    ]
+    const tabla = mount(TablaDeFilas, { props: { columnas: conSinSaltos, filas } })
+
+    const celdas = tabla.findAll('tbody tr')[0]?.findAll('td') ?? []
+
+    expect(celdas[0]?.classes()).not.toContain('text-nowrap')
+    expect(celdas[1]?.classes()).toContain('text-nowrap')
+    expect(celdas[2]?.classes()).toContain('text-nowrap')
+  })
+
+  it('una columna de acciones lleva su encabezado solo para lectores de pantalla y no entra al buscador', async () => {
+    const conAcciones: ColumnaTabla<Fila>[] = [
+      { clave: 'nombre', etiqueta: 'Cliente' },
+      { clave: 'nota', etiqueta: 'Acciones', acciones: true },
+    ]
+    const tabla = mount(TablaDeFilas, { props: { columnas: conAcciones, filas } })
+
+    const encabezado = tabla.findAll('thead th')[1]
+    expect(encabezado?.find('.visually-hidden').text()).toBe('Acciones')
+    expect(encabezado?.classes()).toContain('text-end')
+    expect(tabla.findAll('tbody tr')[0]?.findAll('td')[1]?.classes()).toContain('text-end')
+
+    // La celda vacía se muestra como "—": buscar esa raya no puede traer todas las filas.
+    await tabla.find('input[type="search"]').setValue('—')
+    expect(tabla.findAll('tbody tr')).toHaveLength(0)
+  })
+
+  it('solo las filas clicables llevan la clase que las distingue al pasar el mouse', () => {
+    const comun = mount(TablaDeFilas, { props: { columnas, filas } })
+    const clicable = mount(TablaDeFilas, { props: { columnas, filas, seleccionable: true } })
+
+    expect(comun.find('tbody tr').classes()).not.toContain('cc-row-selectable')
+    expect(clicable.find('tbody tr').classes()).toContain('cc-row-selectable')
+  })
+
   it('filtra sin importar mayúsculas ni tildes y cuenta lo que muestra', async () => {
     const tabla = mount(TablaDeFilas, { props: { columnas, filas } })
 

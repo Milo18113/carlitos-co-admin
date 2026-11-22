@@ -14,6 +14,11 @@ export interface ColumnaTabla<T> {
   /** Identificador de la fila: se muestra en negrita. */
   principal?: boolean
   /**
+   * La celda no se parte en varias líneas: números de factura, referencias, teléfonos. Las fechas y
+   * las cifras (moneda, número) nunca se parten, sin necesidad de marcarlas.
+   */
+  sinSaltos?: boolean
+  /**
    * Columna de botones de la fila ("Ingresar stock", "Eliminar"): su encabezado solo lo lee un
    * lector de pantalla, la celda va a la derecha y el buscador no la tiene en cuenta.
    */

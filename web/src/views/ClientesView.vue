@@ -43,7 +43,7 @@ const columnas: ColumnaTabla<FilaCliente>[] = [
   { clave: 'numero_identificacion', etiqueta: 'Identificación', principal: true },
   { clave: 'razon_social', etiqueta: 'Nombre o razón social' },
   { clave: 'tipo', etiqueta: 'Tipo' },
-  { clave: 'telefono', etiqueta: 'Teléfono' },
+  { clave: 'telefono', etiqueta: 'Teléfono', sinSaltos: true },
   { clave: 'email', etiqueta: 'Email' },
   { clave: 'ciudad', etiqueta: 'Ciudad' },
   { clave: 'fecha_registro', etiqueta: 'Registro', formato: 'fecha' },

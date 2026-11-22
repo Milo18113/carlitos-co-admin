@@ -57,6 +57,12 @@
 .cc-table-wrap tbody tr.cc-row-selectable {
   cursor: pointer;
 }
+// Al pasar el mouse, una fila clicable se oscurece un paso más (gray-100) que una fila común
+// (gray-50, el `$table-hover-bg` de los tokens): así se distingue cuál de las dos hace algo al hacer clic.
+// Bootstrap pinta el hover desde `--bs-table-hover-bg`, que las celdas heredan de su fila.
+.cc-table-wrap .table-hover > tbody > tr.cc-row-selectable {
+  --bs-table-hover-bg: #{$gray-200};
+}
 .cc-row-selectable:focus-visible {
   outline: 2px solid $primary;
   outline-offset: -2px;
