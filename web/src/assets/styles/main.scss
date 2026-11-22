@@ -1,0 +1,5 @@
+// Orden obligatorio: tokens → bootstrap → components (design/DESIGN.md › Mapeo a Bootstrap).
+// Los tokens van antes porque las variables de Bootstrap usan !default.
+@import 'tokens';
+@import 'bootstrap/scss/bootstrap';
+@import 'components';

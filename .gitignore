@@ -6,3 +6,7 @@
 
 # entorno
 .env
+
+# dependencias y build
+node_modules/
+dist/

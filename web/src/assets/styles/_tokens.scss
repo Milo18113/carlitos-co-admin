@@ -1,0 +1,179 @@
+// _tokens.scss — traduce design/DESIGN.md a Bootstrap 5.3.
+// Va ANTES de @import "bootstrap/scss/bootstrap" para que los !default de Bootstrap tomen estos valores.
+// Este archivo se mueve tal cual a web/src/assets/styles/_tokens.scss cuando exista el scaffold.
+
+// ---------- Tipografía (fuente por decidir: cambiar SOLO esta línea) ----------
+$cc-font-sans:
+  system-ui,
+  -apple-system,
+  'Segoe UI',
+  Roboto,
+  'Helvetica Neue',
+  Arial,
+  sans-serif;
+
+// ---------- Marca ----------
+$cc-navy: #195073;
+$cc-steel: #377ba6;
+$cc-gold: #bf9969;
+$cc-sand: #bfb49f;
+$cc-mist: #f2f2f2;
+
+// ---------- Neutros fríos ----------
+$white: #ffffff;
+$gray-100: #f0f4f7;
+$gray-200: #e1e7ed;
+$gray-300: #cdd5de;
+$gray-400: #9ba6b2;
+$gray-500: #677583;
+$gray-600: #4c5a69;
+$gray-700: #364452;
+$gray-800: #222c38;
+$gray-900: #141b24;
+$black: #141b24;
+
+// ---------- Theme colors ----------
+// "accent" NO se agrega a $theme-colors: en 5.3 alerts/list-group esperan sus mapas *-text-emphasis
+// y quedarían rotos. El acento vive como .btn-accent en _components.scss.
+$primary: $cc-navy;
+$secondary: $cc-steel;
+$success: #307e4b;
+$info: $cc-steel;
+$warning: #da9e3f;
+$danger: #b43e37;
+$light: $cc-mist;
+$dark: $gray-900;
+
+// Bootstrap elige texto claro u oscuro sobre cada color con este umbral (WCAG AA).
+$min-contrast-ratio: 4.5;
+$color-contrast-dark: $gray-900;
+$color-contrast-light: $white;
+
+// ---------- Cuerpo y texto ----------
+$body-bg: $white;
+$body-color: $gray-800;
+$body-secondary-color: $gray-600;
+$body-tertiary-color: $gray-500;
+$headings-color: $gray-900;
+$headings-font-weight: 600;
+$link-color: $primary;
+$link-decoration: none;
+
+$font-family-sans-serif: $cc-font-sans;
+$font-size-base: 0.875rem; // 14px
+$font-size-sm: 0.75rem; // 12px
+$font-size-lg: 1rem; // 16px
+$h1-font-size: 1.75rem; // 28px
+$h2-font-size: 1.25rem; // 20px
+$h3-font-size: 1rem; // 16px
+$h4-font-size: 0.875rem;
+$h5-font-size: 0.875rem;
+$h6-font-size: 0.75rem;
+$line-height-base: 1.5;
+$headings-line-height: 1.25;
+
+// ---------- Bordes, radios, sombras ----------
+$border-color: $gray-200;
+$border-radius-sm: 6px;
+$border-radius: 8px;
+$border-radius-lg: 12px;
+$border-radius-pill: 999px;
+
+$box-shadow-sm: 0 1px 2px rgba($gray-900, 0.06);
+$box-shadow: 0 8px 24px rgba($gray-900, 0.1);
+$box-shadow-lg: 0 16px 48px rgba($gray-900, 0.16);
+
+// Foco: anillo suave navy en vez del glow azul por defecto (lo que más delata a Bootstrap).
+$focus-ring-width: 3px;
+$focus-ring-opacity: 0.18;
+$focus-ring-color: rgba($primary, 0.18);
+$input-btn-focus-width: 3px;
+$input-btn-focus-color: rgba($primary, 0.18);
+$input-btn-focus-box-shadow: 0 0 0 3px rgba($primary, 0.18);
+
+// ---------- Botones e inputs (36px de alto con texto de 14px) ----------
+// 6.5px * 2 + 21px (14px * 1.5) + 2px de borde = 36px
+$input-btn-padding-y: 0.40625rem;
+$input-btn-padding-x: 0.875rem;
+$input-btn-padding-y-sm: 0.25rem;
+$input-btn-padding-x-sm: 0.625rem;
+// "lg" = control de formulario de 44px (panel lateral), con el mismo texto de 14px
+$input-btn-padding-y-lg: 0.65625rem;
+$input-btn-padding-x-lg: 1rem;
+$input-btn-font-size-lg: $font-size-base;
+$btn-font-weight: 500;
+$input-border-color: $gray-300;
+$input-focus-border-color: $primary;
+$input-placeholder-color: $gray-400;
+// $enable-shadows queda apagado: la sombra xs de inputs y botones neutros va en _components.scss
+$form-label-font-weight: 500;
+$form-label-color: $gray-600;
+
+// ---------- Componentes ----------
+$card-border-color: $gray-200;
+$card-border-radius: $border-radius-lg;
+$card-cap-bg: $white;
+$card-spacer-y: 1.25rem;
+$card-spacer-x: 1.25rem;
+
+$table-cell-padding-y: 0.75rem;
+$table-cell-padding-x: 1rem;
+$table-border-color: $gray-200;
+$table-th-font-weight: 500;
+$table-hover-bg: #f9fafc; // gray-50
+$table-group-separator-color: $gray-200;
+
+$dropdown-border-color: $gray-200;
+$dropdown-box-shadow: $box-shadow;
+$dropdown-link-hover-bg: $gray-100;
+$dropdown-link-active-bg: $gray-100;
+$dropdown-link-active-color: $gray-900;
+
+$progress-height: 6px;
+$progress-bg: $gray-200;
+$progress-border-radius: $border-radius-pill;
+
+$badge-font-weight: 500;
+$badge-font-size: 0.75rem;
+$badge-border-radius: $border-radius-sm;
+
+$modal-content-border-radius: $border-radius-lg;
+$modal-content-box-shadow-sm-up: $box-shadow-lg;
+
+// ---------- Tokens que Bootstrap no tiene → variables CSS ----------
+:root {
+  --cc-gold: #{$cc-gold};
+  --cc-sand: #{$cc-sand};
+  --cc-gray-50: #f9fafc;
+  --cc-surface-subtle: #{$cc-mist};
+  --cc-primary-hover: #0e4161;
+  --cc-primary-active: #063653;
+  --cc-shadow-xs: 0 1px 2px rgba(20, 27, 36, 0.06);
+  --cc-shadow-sm: 0 1px 3px rgba(20, 27, 36, 0.08), 0 1px 2px rgba(20, 27, 36, 0.04);
+  --cc-shadow-md: 0 8px 24px rgba(20, 27, 36, 0.1);
+  --cc-shadow-lg: 0 16px 48px rgba(20, 27, 36, 0.16);
+  --cc-focus-ring: 0 0 0 3px rgba(25, 80, 115, 0.18);
+  --cc-space-5: 1.25rem;
+
+  --cc-sidebar-width: 260px;
+  --cc-sidebar-width-collapsed: 72px;
+  --cc-topbar-height: 64px;
+  --cc-toolbar-height: 64px;
+  --cc-side-panel-width: 360px;
+
+  // Gráficos: orden fijo, validado (ver DESIGN.md › Gráficos)
+  --cc-chart-1: #005b8a;
+  --cc-chart-2: #bf873a;
+  --cc-chart-3: #3691ba;
+  --cc-chart-4: #9a5929;
+  --cc-chart-5: #2b9477;
+  --cc-chart-6: #7e65a9;
+  --cc-chart-other: #{$gray-400};
+  --cc-chart-seq-1: #86b8dd;
+  --cc-chart-seq-2: #5d99c4;
+  --cc-chart-seq-3: #3a7ba7;
+  --cc-chart-seq-4: #1f5e85;
+  --cc-chart-seq-5: #0e4161;
+  --cc-chart-grid: #{$gray-200};
+  --cc-chart-tick: #{$gray-500};
+}
