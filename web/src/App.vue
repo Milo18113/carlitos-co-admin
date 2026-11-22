@@ -3,13 +3,17 @@ import { Offcanvas } from 'bootstrap'
 import { computed, ref, watchEffect } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 
+import ToastHost from '@/components/common/ToastHost.vue'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
 import { gruposVisibles } from '@/router/navegacion'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificacionesStore } from '@/stores/notificaciones'
 import { REPORTES, esVistaReporte } from '@/types/reportes'
 
 const auth = useAuthStore()
+// ToastHost no conoce el store (los componentes de common/ no lo importan): App.vue los conecta.
+const notificaciones = useNotificacionesStore()
 const route = useRoute()
 const router = useRouter()
 
@@ -41,7 +45,12 @@ function cerrarMenuMovil(): void {
 
 /** CU-02: cierra la sesión y vuelve al login. */
 async function cerrarSesion(): Promise<void> {
-  if (await auth.logout()) await router.replace({ name: 'login' })
+  if (await auth.logout()) {
+    await router.replace({ name: 'login' })
+  } else {
+    // Si el API no respondió, la sesión sigue abierta: el usuario tiene que saberlo.
+    notificaciones.error('No se pudo cerrar la sesión', auth.error ?? undefined)
+  }
 }
 </script>
 
@@ -82,4 +91,7 @@ async function cerrarSesion(): Promise<void> {
   </div>
 
   <RouterView v-else />
+
+  <!-- Fuera del layout: los avisos también salen en el login (por ejemplo "sesión expirada") -->
+  <ToastHost :notificaciones="notificaciones.items" @descartar="notificaciones.descartar" />
 </template>

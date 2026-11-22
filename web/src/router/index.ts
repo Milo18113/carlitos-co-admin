@@ -66,6 +66,13 @@ export function crearRouter(historial: RouterHistory) {
         meta: { titulo: 'Administrar empleados', rolRequerido: ROL_ADMINISTRADOR },
       },
       {
+        // TEMPORAL (Pausa 4): se borra en el bloque G2. No está en el menú.
+        path: '/componentes-prueba',
+        name: 'componentes-prueba',
+        component: () => import('@/views/ComponentesPruebaView.vue'),
+        meta: { titulo: 'Componentes (temporal)' },
+      },
+      {
         path: '/reportes/:vista',
         name: 'reporte',
         component: () => import('@/views/ReporteView.vue'),
