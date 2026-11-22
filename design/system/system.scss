@@ -1,0 +1,13 @@
+// system.scss — punto de entrada de la página design/system.html.
+//
+// Compilar (desde la carpeta del repo; necesita `sass` y `bootstrap@5.3.x` instalados en algún node_modules):
+//   sass --no-source-map --load-path=<ruta>/node_modules --quiet-deps \
+//        --silence-deprecation=import,global-builtin,color-functions,if-function \
+//        design/system/system.scss design/system/system.css
+//
+// Bootstrap 5.3 todavía usa @import; los warnings de Dart Sass son de Bootstrap, no de este proyecto.
+
+@import "tokens";
+@import "bootstrap/scss/bootstrap";
+@import "components";
+@import "docs";

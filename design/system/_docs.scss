@@ -1,0 +1,83 @@
+// _docs.scss — estilos SOLO de la página system.html (muestrarios, índice, swatches). No se lleva al front.
+// Todo usa prefijo "sys-" para no confundirse con los componentes "cc-".
+
+html { scroll-behavior: smooth; scroll-padding-top: 1.5rem; }
+body { background: $white; }
+
+.sys-header { border-bottom: 1px solid $border-color; background: $white; }
+.sys-header__inner { max-width: 1280px; margin: 0 auto; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.sys-header__meta { margin-left: auto; font-size: .75rem; color: $gray-500; text-align: right; }
+
+.sys-layout { max-width: 1560px; margin: 0 auto; padding: 0 1.5rem; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 2.5rem; }
+.sys-index { position: sticky; top: 0; align-self: start; padding: 2rem 0; max-height: 100vh; overflow: auto; }
+.sys-index__group { font-size: .75rem; font-weight: 500; color: $gray-500; padding: .75rem .75rem .25rem; }
+.sys-index a { display: block; padding: .3125rem .75rem; border-radius: $border-radius-sm; color: $gray-600; font-size: .8125rem; }
+.sys-index a:hover { background: var(--cc-gray-50); color: $gray-900; }
+@media (max-width: 991.98px) {
+  .sys-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .sys-index { display: none; }
+}
+
+.sys-main { min-width: 0; padding-bottom: 6rem; }
+.sys-section { padding: 3rem 0 1rem; border-top: 1px solid $border-color; }
+.sys-section:first-child { border-top: 0; padding-top: 2rem; }
+.sys-section__head { margin-bottom: 1.5rem; }
+.sys-section__title { font-size: 1.25rem; font-weight: 600; margin: 0 0 .25rem; }
+.sys-section__lead { color: $gray-600; margin: 0; max-width: 70ch; }
+.sys-sub { font-size: .75rem; font-weight: 500; color: $gray-500; margin: 2rem 0 .75rem; text-transform: uppercase; letter-spacing: .04em; }
+.sys-sub:first-child { margin-top: 0; }
+.sys-section__head + .sys-sub { margin-top: 0; }
+
+// Etiqueta del componente Vue al que corresponde cada muestra
+.sys-tag {
+  display: inline-block; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .6875rem;
+  padding: .125rem .5rem; border-radius: $border-radius-pill; background: $gray-100; color: $gray-600; border: 1px solid $border-color;
+  vertical-align: middle; margin-left: .5rem; font-weight: 500;
+}
+code { font-size: .8125rem; color: $gray-700; background: $gray-100; padding: .0625rem .375rem; border-radius: 4px; }
+
+.sys-specimen { background: $white; border: 1px solid $border-color; border-radius: $border-radius-lg; padding: 1.5rem; }
+.sys-specimen--subtle { background: var(--cc-surface-subtle); }
+.sys-specimen--flush { padding: 0; overflow: hidden; }
+.sys-row { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
+.sys-caption { font-size: .75rem; color: $gray-500; margin: .5rem 0 0; }
+
+// Swatches
+.sys-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
+.sys-swatch { border: 1px solid $border-color; border-radius: $border-radius-lg; overflow: hidden; background: $white; }
+.sys-swatch__chip { height: 72px; background: var(--c); border-bottom: 1px solid $border-color; display: flex; align-items: flex-end; padding: .5rem .625rem; font-size: .75rem; font-weight: 500; color: var(--t, #{$gray-900}); }
+.sys-swatch__meta { padding: .625rem .75rem; }
+.sys-swatch__name { font-size: .8125rem; font-weight: 500; color: $gray-900; }
+.sys-swatch__hex { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .75rem; color: $gray-600; }
+.sys-swatch__use { font-size: .75rem; color: $gray-500; margin-top: .25rem; line-height: 1.35; }
+.sys-ok { color: $success; font-weight: 500; }
+.sys-no { color: $danger; font-weight: 500; }
+
+.sys-ramp { display: flex; border-radius: $border-radius; overflow: hidden; border: 1px solid $border-color; }
+.sys-ramp > div { flex: 1; height: 56px; background: var(--c); }
+
+// Tipografía
+.sys-type-row { display: grid; grid-template-columns: 110px 1fr 140px; gap: 1rem; align-items: baseline; padding: .875rem 0; border-top: 1px solid $border-color; }
+.sys-type-row:first-child { border-top: 0; }
+.sys-type-row__name { font-size: .75rem; color: $gray-500; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.sys-type-row__spec { font-size: .75rem; color: $gray-500; text-align: right; }
+
+// Radios, sombras, espaciado
+.sys-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1.25rem; }
+.sys-tile { text-align: center; font-size: .75rem; color: $gray-600; }
+.sys-tile__box { height: 72px; background: $white; border: 1px solid $border-color; margin-bottom: .5rem; }
+.sys-tile__box--fill { background: var(--cc-gray-50); }
+.sys-tile code { display: inline-block; margin-top: .25rem; }
+.sys-space { display: flex; align-items: center; gap: 1rem; font-size: .75rem; color: $gray-600; padding: .25rem 0; }
+.sys-space__bar { height: 12px; background: $cc-steel; border-radius: 2px; opacity: .85; }
+.sys-space code { width: 110px; white-space: nowrap; }
+
+// Iconos
+.sys-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: .75rem; }
+.sys-icon { text-align: center; padding: .875rem .25rem .625rem; border: 1px solid $border-color; border-radius: $border-radius; font-size: .6875rem; color: $gray-600; }
+.sys-icon .cc-icon { width: 1.5rem; height: 1.5rem; color: $gray-800; margin-bottom: .375rem; stroke-width: 1.5; }
+
+// Marco de la maqueta del layout
+.sys-frame { border: 1px solid $border-color; border-radius: $border-radius-lg; overflow: auto; background: $white; box-shadow: var(--cc-shadow-sm); }
+.sys-frame__inner { min-width: 1120px; height: 760px; }
+.sys-frame .cc-shell { height: 100%; }

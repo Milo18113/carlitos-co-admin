@@ -2,7 +2,7 @@
 
 16 nov 2026 · Emilio Puga
 
-> Copia en Markdown del doc de planificación ([versión editable](https://claude.ai/artifact/63kSPxwzGmURCdyMpphiP4)), exportada el 22 nov 2026. Los diagramas del doc están aquí como Mermaid y como tabla.
+> Desde el 22 nov 2026 esta es la versión oficial de la planificación. El doc de Claude del que salió ([versión editable](https://claude.ai/artifact/63kSPxwzGmURCdyMpphiP4)) ya no se actualiza. El plan técnico del front y del API está en [.claude/plan-frontend.md](../.claude/plan-frontend.md).
 
 ## Resumen
 
@@ -15,7 +15,7 @@ carlitos-co-admin es un panel de administración web para la empresa de Carlitos
 | Cliente | Carlitos (contacto: Andrés) |
 | Curso | CMP 4002 Base de Datos, prof. Noel Pérez |
 | Front | Vue + TypeScript |
-| Base de datos | MySQL en la nube (plataforma por decidir, ver Stack) |
+| Base de datos | MySQL en la nube, en Railway (ver Stack) |
 
 ## Qué evalúa el profesor
 
@@ -130,7 +130,7 @@ flowchart LR
 | CU-06 | Alta de cliente; si ya existe, actualiza sus datos | `registrar_cliente` | INSERT / UPDATE |
 | CU-07 | Crea el repuesto con su stock inicial, o suma stock si ya existe | `ingresar_repuesto` | INSERT / UPDATE |
 | CU-08 | Mueve stock de una bodega a otra | `trasladar_repuesto` | UPDATE / INSERT / DELETE |
-| CU-09 ⚠ | Cabecera + detalle de factura en una sola transacción | Sin procedure: decidir entre crear `emitir_factura` o una transacción JDBC desde el API | INSERT |
+| CU-09 ⚠ | Cabecera + detalle de factura en una sola transacción | Sin procedure: decidir entre crear `emitir_factura` o una transacción con `mysql2` desde el API | INSERT |
 | CU-10 | Abono a una factura sin pasar el saldo | `registrar_pago` | INSERT |
 | CU-11 | Borra un pago, solo si se registró hoy | `eliminar_pago` | DELETE |
 | CU-12 | Alta de empleado, o reactivación si la cédula ya existía | `contratar_empleado` | INSERT / UPDATE |
@@ -163,13 +163,15 @@ Sí hay que preguntarle: las 4 primeras pueden cambiar el DER, así que Andrés 
 
 ## Stack y arquitectura
 
-Hacen falta tres capas: Vue en el navegador, un API en Node con el driver `mysql2`, y MySQL 8 real en la nube. TiDB queda descartada porque no soporta triggers ni procedures, y el PF los pide.
+Hacen falta tres capas: Vue en el navegador, un API en Node con el driver `mysql2`, y MySQL 8 real en Railway. TiDB queda descartada porque no soporta triggers ni procedures, y el PF los pide. El detalle (estructura, endpoints, rutas, orden de trabajo) está en [.claude/plan-frontend.md](../.claude/plan-frontend.md).
+
+`mysql2` no es uno de los drivers de la presentación S14TP01 (ODBC, OLE-DB, ADO, ADO.NET, JDBC). Se eligió sobre JDBC para no meter Java con tan poco tiempo, y se defiende por analogía con el flujo JDBC de la diap. 9 (tabla en la sección 4.1 del plan). Está pendiente confirmar con el profe que lo acepta.
 
 ```mermaid
 flowchart LR
   F["<b>Front · Vue 3 + TS</b><br/>Login y sesión<br/>Dashboard con gráficos<br/>CRUD productos y clientes<br/>Facturación y pagos<br/>Reportes PDF de las vistas"]
   A["<b>API · Node + Express</b><br/>Rutas REST en JSON<br/>bcrypt + sesión<br/>Driver mysql2 con pool<br/>Consultas parametrizadas<br/>Llama vistas y procedures"]
-  D["<b>MySQL 8 en la nube</b><br/>Railway o Aiven<br/>22 tablas del modelo<br/>5 o más vistas<br/>Triggers y procedures<br/>Transacciones ACID"]
+  D["<b>MySQL 8 en la nube</b><br/>Railway<br/>22 tablas del modelo<br/>5 o más vistas<br/>Triggers y procedures<br/>Transacciones ACID"]
   W["<b>MySQL Workbench</b><br/>DER en FNBC<br/>Carga y exporta el .sql"]
   F <-->|HTTP + JSON| A
   A <-->|SQL vía driver| D
@@ -283,9 +285,9 @@ SQL y API arrancan apenas esté la base en la nube; el front arranca con datos d
 
 ## Decisiones pendientes
 
-Hay 11 decisiones abiertas. Las 3 primeras bloquean el arranque del back-end.
+Quedan 10 decisiones abiertas.
 
-- [ ] Plataforma de la base: Railway o Aiven (ver *Stack*)
+- [x] Plataforma de la base: Railway (ver *Stack*)
 - [ ] Renombrar el schema `mydb` (el nombre por defecto de Workbench) a algo como `carlitos_co`
 - [ ] Reparto de trabajo entre Milo y Andrés
 - [ ] De qué bodega sale una venta (depende de Carlitos)
@@ -293,7 +295,8 @@ Hay 11 decisiones abiertas. Las 3 primeras bloquean el arranque del back-end.
 - [ ] Qué significa `factor_costo` en `tCompra`; documentarlo en el *Problema*
 - [ ] `AUTO_INCREMENT` o clave natural en factura, pago y compra
 - [ ] Excepciones a pautas del profe: `COALESCE` en `v_saldo_por_cobrar` y stock guardado en `tInventario`
-- [ ] Framework del API (propuesta: Express)
+- [x] Framework del API: Express con TypeScript
+- [ ] Confirmar con el profe que acepta `mysql2` como driver (plan B: JDBC)
 - [ ] Dónde está el skill de Vue de Milo: no aparece entre sus skills de esta sesión
 - [ ] Fecha exacta de la presentación: el syllabus la pone en las semanas 16 y 17 (30 nov a 11 dic)
 
@@ -303,5 +306,6 @@ El enunciado obliga a declarar en qué partes se usó IA, con qué herramienta y
 
 | Fecha | Parte del proyecto | Herramienta | Prompt (resumen) |
 | --- | --- | --- | --- |
+| 22 nov 2026 | Sistema de diseño del front con paleta de colores y componentes (`design/DESIGN.md`, `design/system.html` y `design/system/`) | Claude Code (Claude Opus 5.5 y Sonnet 5.5) | Analizar el video de referencia del dashboard y decidir si Bootstrap sirve con la paleta de la empresa o hace falta Tailwind; escribir el DESIGN.md con colores, grises fríos, estados y paleta de gráficos validada; armar un system.html con los componentes y estilos (sin Vue todavía); cambiar el botón de reporte PDF a sand |
 | 16 nov 2026 | Planificación y alcance (este doc) | Claude | Recomendar plataformas MySQL en la nube y planificar alcance, reglas y cronograma del proyecto final |
 | 16 nov 2026 | Elección de plataforma de base de datos | Claude | Plataformas en la nube para MySQL equivalentes a Supabase |
