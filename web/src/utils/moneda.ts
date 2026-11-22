@@ -8,6 +8,11 @@ function agruparMiles(entero: string): string {
   return entero.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
 }
 
+/** Al centavo: para sumar montos sin arrastrar el ruido de la coma flotante (0.1 + 0.2). */
+export function redondearMoneda(valor: number): number {
+  return Math.round(valor * 100) / 100
+}
+
 /** Dos decimales siempre, en USD. Las cifras de tablas y KPIs llevan además la clase `tabular`. */
 export function formatearMoneda(valor: number): string {
   const centavos = Math.round(valor * 100)

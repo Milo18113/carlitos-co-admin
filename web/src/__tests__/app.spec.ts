@@ -23,7 +23,8 @@ async function montarEn(ruta: string) {
   const router = crearRouter(createMemoryHistory())
   await router.push(ruta)
   await router.isReady()
-  wrapper = mount(App, { global: { plugins: [pinia, router] } })
+  // GraficoBarras se reemplaza por un stub: jsdom no tiene canvas y Chart.js necesita dibujar en uno.
+  wrapper = mount(App, { global: { plugins: [pinia, router], stubs: { GraficoBarras: true } } })
   return { router, wrapper }
 }
 

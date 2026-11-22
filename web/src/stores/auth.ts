@@ -5,13 +5,10 @@ import { ROL_ADMINISTRADOR } from '@/config/roles'
 import { authService } from '@/services'
 import { NoAutorizadoError } from '@/services/errores'
 import type { Credenciales, Sesion } from '@/types/empleado'
+import { mensajeDeError } from '@/utils/errores'
 
 const MENSAJE_LOGIN_INCORRECTO = 'Usuario o contraseña incorrectos'
 const MENSAJE_SESION_EXPIRADA = 'Tu sesión expiró. Inicia sesión de nuevo.'
-
-function mensajeDe(causa: unknown): string {
-  return causa instanceof Error ? causa.message : 'Error desconocido'
-}
 
 export const useAuthStore = defineStore('auth', () => {
   const empleado = ref<Sesion | null>(null)
@@ -39,7 +36,7 @@ export const useAuthStore = defineStore('auth', () => {
       } catch (causa) {
         empleado.value = null
         // No tener sesión es lo normal antes de entrar: no es un error que mostrar.
-        if (!(causa instanceof NoAutorizadoError)) error.value = mensajeDe(causa)
+        if (!(causa instanceof NoAutorizadoError)) error.value = mensajeDeError(causa)
       } finally {
         sesionCargada.value = true
         isLoading.value = false
@@ -60,7 +57,8 @@ export const useAuthStore = defineStore('auth', () => {
       return true
     } catch (causa) {
       // Un 401 en el login es "credenciales incorrectas", no "sesión vencida".
-      error.value = causa instanceof NoAutorizadoError ? MENSAJE_LOGIN_INCORRECTO : mensajeDe(causa)
+      error.value =
+        causa instanceof NoAutorizadoError ? MENSAJE_LOGIN_INCORRECTO : mensajeDeError(causa)
       return false
     } finally {
       isLoading.value = false
@@ -76,7 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
       limpiarSesion()
       return true
     } catch (causa) {
-      error.value = mensajeDe(causa)
+      error.value = mensajeDeError(causa)
       return false
     } finally {
       isLoading.value = false

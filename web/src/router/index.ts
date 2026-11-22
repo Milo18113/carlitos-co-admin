@@ -76,17 +76,9 @@ export function crearRouter(historial: RouterHistory) {
         path: '/reportes/:vista',
         name: 'reporte',
         component: () => import('@/views/ReporteView.vue'),
+        // `:vista` llega como prop; el guard global ya comprobó que es una de las 5 vistas.
+        props: true,
         meta: { titulo: 'Reportes' },
-        // Un `:vista` que no es una de las 5 vistas es una ruta que no existe.
-        beforeEnter: (to) =>
-          esVistaReporte(to.params.vista)
-            ? true
-            : {
-                name: 'no-encontrado',
-                params: { pathMatch: to.path.slice(1).split('/') },
-                query: to.query,
-                hash: to.hash,
-              },
       },
       {
         path: '/:pathMatch(.*)*',
@@ -110,6 +102,17 @@ export function crearRouter(historial: RouterHistory) {
 
     if (to.meta.rolRequerido !== undefined && auth.empleado?.codigo_rol !== to.meta.rolRequerido) {
       return { name: 'dashboard' }
+    }
+
+    // Un `:vista` que no es una de las 5 vistas es una ruta que no existe. Va aquí y no en
+    // `beforeEnter`, que no corre cuando solo cambia el parámetro (de un reporte a otro).
+    if (to.name === 'reporte' && !esVistaReporte(to.params.vista)) {
+      return {
+        name: 'no-encontrado',
+        params: { pathMatch: to.path.slice(1).split('/') },
+        query: to.query,
+        hash: to.hash,
+      }
     }
     return true
   })

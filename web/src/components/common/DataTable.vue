@@ -2,7 +2,8 @@
 import { computed } from 'vue'
 
 import type { ColumnaTabla } from '@/types/tabla'
-import { esNumerico, formatearCelda } from '@/utils/formatoCelda'
+import { filtrarFilas } from '@/utils/filtrarFilas'
+import { esNumerico, estaActivo, formatearCelda } from '@/utils/formatoCelda'
 
 import AppIcon from './AppIcon.vue'
 import EmptyState from './EmptyState.vue'
@@ -44,24 +45,7 @@ defineSlots<{
   [celda: `celda-${string}`]: (props: { fila: T; valor: unknown }) => unknown
 }>()
 
-/** Sin mayúsculas ni tildes: buscar "mecanica" encuentra "MECÁNICA". */
-function normalizar(texto: string): string {
-  return texto
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase()
-}
-
-const filasVisibles = computed(() => {
-  const consulta = normalizar(filtro.value.trim())
-  if (consulta === '') return props.filas
-  return props.filas.filter((fila) => {
-    const texto = props.columnas
-      .map((columna) => formatearCelda(fila[columna.clave], columna.formato))
-      .join(' ')
-    return normalizar(texto).includes(consulta)
-  })
-})
+const filasVisibles = computed(() => filtrarFilas(props.filas, props.columnas, filtro.value))
 
 const hayFiltro = computed(() => filtro.value.trim() !== '')
 const sinFilas = computed(() => !props.cargando && props.filas.length === 0)
@@ -137,7 +121,24 @@ function activar(fila: T): void {
               }"
             >
               <slot :name="`celda-${columna.clave}`" :fila="fila" :valor="fila[columna.clave]">
-                {{ formatearCelda(fila[columna.clave], columna.formato) }}
+                <!-- Estado activo/inactivo: el color va siempre con ícono y texto -->
+                <span
+                  v-if="columna.formato === 'activo'"
+                  :class="[
+                    'badge',
+                    estaActivo(fila[columna.clave])
+                      ? 'bg-success-subtle text-success-emphasis'
+                      : 'bg-secondary-subtle text-secondary-emphasis',
+                  ]"
+                >
+                  <AppIcon
+                    :nombre="estaActivo(fila[columna.clave]) ? 'check-circle' : 'dash-circle'"
+                  />
+                  {{ formatearCelda(fila[columna.clave], columna.formato) }}
+                </span>
+                <template v-else>
+                  {{ formatearCelda(fila[columna.clave], columna.formato) }}
+                </template>
               </slot>
             </td>
           </tr>
