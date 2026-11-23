@@ -176,7 +176,8 @@ Botones, links, ítems del nav y checkboxes no tienen borde que lo acompañe, as
 | `nav-item-height` | 40px |
 | `table-row-height` | 44px |
 
-- Breakpoint: debajo de `lg` (992px) el sidebar pasa a `offcanvas` y el panel lateral baja debajo del contenido.
+- Breakpoint: debajo de `lg` (992px) el sidebar pasa a `offcanvas`.
+- **Panel lateral, dos variantes.** El diagrama de arriba es la del video: un panel de 360px al lado del contenido (`.cc-sidepanel`), que angosta la tabla al abrirse. La app usa la variante **overlay** (`.cc-sidepanel--overlay` + `.cc-sidepanel-backdrop`): el mismo panel, pero `position: fixed` pegado a la derecha y de borde a borde en vertical, sobre un velo como el de los modales. No ocupa lugar en el layout, así la tabla no se aprieta ni aparece scroll horizontal. En pantallas de menos de 360px ocupa todo el ancho.
 - Fondo: `surface` para sidebar, topbar y paneles; `surface-subtle` solo detrás de cuadrículas de tarjetas (dashboard) y en el login.
 
 ## Componentes
@@ -199,6 +200,7 @@ Cada uno con su equivalente en Bootstrap. "SCSS propio" significa que va en `web
 | **Badge de estado** | `badge` + `bg-*-subtle text-*-emphasis` | `radius-sm`, `text-xs` 500, siempre con ícono o texto claro ("Pagada", "Vencida"). |
 | **Progress** | `progress` | Alto 6px, `radius-pill`, fondo `gray-200`. |
 | **ConfirmDialog / modales** | `modal` | `radius-lg`, `shadow-lg`, header sin borde. |
+| **SidePanel (overlay)** | `offcanvas` (solo el z-index y el velo) | SCSS propio. 360px (`side-panel-width`), `surface`, borde izquierdo `border`, `shadow-lg` porque flota, padding 20px. Encabezado con título `text-md` 600 y botón ícono neutro para cerrar. Los botones de acción quedan pegados abajo (`.cc-form-actions`). Entra deslizándose desde la derecha (200ms; sin animar con `prefers-reduced-motion`); la salida es instantánea. Es un diálogo modal: `role="dialog"` + `aria-modal`, el foco va al primer campo y vuelve al botón de origen, Tab no sale del panel. Se cierra con la X, "Cancelar" o Esc; **un clic en el velo no lo cierra**, para no perder lo escrito. |
 | **ToastHost** | `toast` | `shadow-md`, ícono de estado a la izquierda. |
 | **EmptyState** | — | Ícono 32px `gray-400`, título `text-md`, texto `gray-500`, botón primario opcional. |
 

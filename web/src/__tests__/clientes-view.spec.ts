@@ -72,15 +72,17 @@ describe('/clientes · lista', () => {
 })
 
 describe('/clientes · panel lateral', () => {
-  it('"Nuevo cliente" abre el panel junto al contenido, con el foco en el primer campo', async () => {
+  it('"Nuevo cliente" abre el panel como overlay, con el foco en el primer campo', async () => {
     const app = await montarClientes()
 
     await abrirPanelNuevo(app)
 
     const panel = document.querySelector('.cc-sidepanel')
-    // El panel es hermano del contenido dentro de `.cc-shell__body`, no está metido en la tabla.
-    expect(panel?.parentElement?.id).toBe('panel-lateral')
-    expect(panel?.parentElement?.parentElement?.classList.contains('cc-shell__body')).toBe(true)
+    // Flota sobre la página (`position: fixed`): no está metido en la tabla ni le quita ancho. Se dibuja
+    // en el destino de App.vue, que sigue colgando de `.cc-shell__body`.
+    expect(panel?.classList.contains('cc-sidepanel--overlay')).toBe(true)
+    const destino = panel?.closest('#panel-lateral')
+    expect(destino?.parentElement?.classList.contains('cc-shell__body')).toBe(true)
     expect(panel?.querySelector('.cc-sidepanel__title')?.textContent).toBe('Nuevo cliente')
     expect(document.activeElement?.id).toBe('cliente-tipo')
   })

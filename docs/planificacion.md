@@ -265,6 +265,22 @@ El stack trae 8 conceptos que no se vieron en clase. Están precargados como *Po
 | Librería de gráficos | Dashboard de ventas | — | Por investigar |
 | Generación de PDF en el navegador | Reportes descargables de las 5 vistas | — | Por investigar |
 
+### Conceptos nuevos del front (en uso en `web/`)
+
+Desde el 22 nov 2026 el front usa estos conceptos. La regla 2 pide avisar, investigar y documentar antes de usarlos: están en uso, y **falta investigarlos y documentarlos a fondo antes de la defensa**. Las filas *Librería de gráficos* y *Generación de PDF en el navegador* de la tabla de arriba quedan resueltas con Chart.js y jsPDF.
+
+| Concepto | Qué es y para qué lo usamos | Alternativa de clase | Fuente | Estado |
+| --- | --- | --- | --- | --- |
+| Pinia | Librería oficial de Vue para guardar el estado compartido (datos, `isLoading`, errores) en *stores*, uno por dominio. Las pantallas le piden los datos al store y no llaman al API directo | Ninguna: el estado compartido no es tema del syllabus | [pinia.vuejs.org](https://pinia.vuejs.org) | En uso (`web/src/stores/`) |
+| Vue Router | Rutas del front (`/clientes`, `/reportes/:vista`) y un *guard* que manda al login si no hay sesión y le cierra `/administracion-empleados` a quien no es administrador | Ninguna | [router.vuejs.org](https://router.vuejs.org) | En uso (`web/src/router/`) |
+| Bootstrap 5 con Sass | CSS ya hecho (tablas, formularios, modales). Se personaliza con variables de Sass (`_tokens.scss`), no con CSS suelto | Ninguna: el CSS no es parte de BDD | [getbootstrap.com](https://getbootstrap.com/docs/5.3/customize/sass/) | En uso |
+| Bootstrap Icons | Íconos del menú y de los botones | Ninguna | [icons.getbootstrap.com](https://icons.getbootstrap.com) | En uso |
+| Proxy de desarrollo de Vite | El front reenvía `/api/*` al API de Express (:3000): el navegador usa rutas relativas y no hay problemas de CORS | Aplicaciones de varias capas (solo teoría) | [vite.dev](https://vite.dev/config/server-options.html#server-proxy) | En uso (`web/vite.config.ts`) |
+| Chart.js y vue-chartjs | Gráficos del dashboard (barras apiladas y horizontales) hechos con los datos de las vistas | Ninguna | [chartjs.org](https://www.chartjs.org), [vue-chartjs.org](https://vue-chartjs.org) | En uso (`DashboardView`) |
+| jsPDF y jspdf-autotable | Arman en el navegador el PDF de cada reporte: título, fecha, usuario y la tabla | Ninguna | [jsPDF](https://github.com/parallax/jsPDF), [autotable](https://github.com/simonbengtsson/jsPDF-AutoTable) | En uso (`web/src/utils/exportarPdf.ts`) |
+| Mocks intercambiables (puertos y adaptadores) | Cada service tiene una interfaz, una implementación real con `fetch` y una mock en memoria que replica los procedures; `VITE_USE_MOCKS` elige cuál. Permitió hacer el front sin esperar al API. Es el patrón *puertos y adaptadores* (arquitectura hexagonal) | Aplicaciones de varias capas (teoría). La analogía es JDBC: una interfaz con distintos drivers detrás | [Cockburn](https://alistair.cockburn.us/hexagonal-architecture/) | En uso (`web/src/services/`) |
+| Vitest y Vue Test Utils | Pruebas automáticas del front (`npm run test:unit`) | Ninguna | [vitest.dev](https://vitest.dev), [test-utils.vuejs.org](https://test-utils.vuejs.org) | En uso (`web/src/__tests__/`) |
+
 ## Cronograma
 
 Quedan 13 días. El código cierra el 26 nov para dejar 3 días a pruebas, informe, presentación y README.txt.
@@ -285,12 +301,16 @@ SQL y API arrancan apenas esté la base en la nube; el front arranca con datos d
 
 ## Decisiones pendientes
 
-Quedan 10 decisiones abiertas.
+Quedan 14 decisiones abiertas.
 
 - [x] Plataforma de la base: Railway (ver *Stack*)
 - [ ] Renombrar el schema `mydb` (el nombre por defecto de Workbench) a algo como `carlitos_co`
 - [ ] Reparto de trabajo entre Milo y Andrés
 - [ ] De qué bodega sale una venta (depende de Carlitos)
+- [ ] **CU-09 · Forma de pago de la factura.** `tFactura` no tiene esa columna: los pagos viven en `tPago`. El front manda `forma_pago` (o `null`): con valor, el API registra además un pago por el total (venta al contado); con `null`, la factura queda con saldo por cobrar (a crédito). Decidir si se deja así o se quita el selector del formulario
+- [ ] **CU-09 · Número de factura.** El front no lo manda: lo asigna el API (el siguiente de la serie, por ejemplo `001-001-000000126`) y lo devuelve en el `mensaje`. La alternativa es que el front lo mande, como hace con `codigo_pago`, o usar `AUTO_INCREMENT` (ver la decisión de `AUTO_INCREMENT` o clave natural, más abajo)
+- [ ] **CU-09 · IVA.** El front usa 15 % (`web/src/config/facturacion.ts`) y lo manda como `porcentaje_iva`. Confirmar con Carlitos qué porcentaje maneja; va de la mano de la pregunta «¿Todos los productos llevan el mismo IVA?»
+- [ ] **CU-09 · Stock.** La venta no descuenta stock: `tDetalleFactura` no guarda bodega, así que el modelo no dice de dónde sale lo vendido. Decidir si descuenta (con un trigger o dentro de la misma transacción) y de qué bodega; depende de «De qué bodega sale una venta». El contrato propuesto del body está en `web/src/types/factura.ts`
 - [ ] `ON DELETE` por tabla, o baja lógica para productos y clientes
 - [ ] Qué significa `factor_costo` en `tCompra`; documentarlo en el *Problema*
 - [ ] `AUTO_INCREMENT` o clave natural en factura, pago y compra
@@ -306,6 +326,7 @@ El enunciado obliga a declarar en qué partes se usó IA, con qué herramienta y
 
 | Fecha | Parte del proyecto | Herramienta | Prompt (resumen) |
 | --- | --- | --- | --- |
+| 22 nov 2026 | Front en Vue con mocks (`web/`): login y rutas, reportes con PDF, dashboard con gráficos, clientes, repuestos y traslados, pagos, empleados y factura nueva, con sus pruebas | Claude Code (Claude Opus 5.5 y Sonnet 5.5) | Construir el front siguiendo el handoff, en bloques con pausas para revisar: scaffold con Vue, Bootstrap y el sistema de diseño; tipos y mocks con la forma exacta de los endpoints; layout, sesión y componentes comunes; reportes con PDF y dashboard; formularios que ejecutan INSERT, UPDATE y DELETE; y la factura nueva con un contrato propuesto. En la revisión se pidieron ajustes: renombrar la sección de empleados, el botón de ícono pequeño, un solo scroll vertical en las tablas y un hover más oscuro en las filas clicables |
 | 22 nov 2026 | Sistema de diseño del front con paleta de colores y componentes (`design/DESIGN.md`, `design/system.html` y `design/system/`) | Claude Code (Claude Opus 5.5 y Sonnet 5.5) | Analizar el video de referencia del dashboard y decidir si Bootstrap sirve con la paleta de la empresa o hace falta Tailwind; escribir el DESIGN.md con colores, grises fríos, estados y paleta de gráficos validada; armar un system.html con los componentes y estilos (sin Vue todavía); cambiar el botón de reporte PDF a sand |
 | 16 nov 2026 | Planificación y alcance (este doc) | Claude | Recomendar plataformas MySQL en la nube y planificar alcance, reglas y cronograma del proyecto final |
 | 16 nov 2026 | Elección de plataforma de base de datos | Claude | Plataformas en la nube para MySQL equivalentes a Supabase |

@@ -12241,6 +12241,41 @@ body {
   border-top: 1px solid #E1E7ED;
 }
 
+.cc-sidepanel--overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1045;
+  width: min(var(--cc-side-panel-width), 100%);
+  box-shadow: 0 16px 48px rgba(20, 27, 36, 0.16);
+  animation: cc-sidepanel-in 0.2s ease;
+}
+
+.cc-sidepanel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  background: rgba(20, 27, 36, 0.5);
+  animation: cc-sidepanel-fade-in 0.2s ease;
+}
+
+@keyframes cc-sidepanel-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes cc-sidepanel-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cc-sidepanel--overlay, .cc-sidepanel-backdrop {
+    animation: none;
+  }
+}
+
 .cc-shell {
   display: flex;
   min-height: 0;

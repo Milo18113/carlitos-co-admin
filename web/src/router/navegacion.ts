@@ -20,6 +20,12 @@ const GRUPOS_NAVEGACION: readonly GrupoNavegacion[] = [
       { etiqueta: 'Repuestos', icono: 'box-seam', ruta: '/repuestos' },
       { etiqueta: 'Nueva factura', icono: 'receipt', ruta: '/facturas/nueva' },
       { etiqueta: 'Pagos', icono: 'credit-card', ruta: '/pagos' },
+      {
+        etiqueta: 'Administrar empleados',
+        icono: 'person-badge',
+        ruta: '/administracion-empleados',
+        rolRequerido: ROL_ADMINISTRADOR,
+      },
     ],
   },
   {
@@ -29,16 +35,6 @@ const GRUPOS_NAVEGACION: readonly GrupoNavegacion[] = [
       icono: ICONOS_REPORTE[vista],
       ruta: `/reportes/${vista}`,
     })),
-  },
-  {
-    items: [
-      {
-        etiqueta: 'Administrar empleados',
-        icono: 'person-badge',
-        ruta: '/administracion-empleados',
-        rolRequerido: ROL_ADMINISTRADOR,
-      },
-    ],
   },
 ]
 

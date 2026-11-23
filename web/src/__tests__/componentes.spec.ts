@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import ChartCard from '@/components/common/ChartCard.vue'
@@ -6,6 +7,7 @@ import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import DataTable from '@/components/common/DataTable.vue'
 import FormField from '@/components/common/FormField.vue'
 import KpiCard from '@/components/common/KpiCard.vue'
+import SidePanel from '@/components/common/SidePanel.vue'
 import ToastHost from '@/components/common/ToastHost.vue'
 import type { Notificacion } from '@/types/notificacion'
 import type { ColumnaTabla } from '@/types/tabla'
@@ -499,5 +501,136 @@ describe('ConfirmDialog', () => {
       await esperarQueQuedeLimpio()
       expect(document.querySelector('.modal')).toBeNull()
     }
+  })
+})
+
+describe('SidePanel', () => {
+  // El panel escucha el documento mientras está montado: cada prueba tiene que desmontar el suyo, o
+  // sus oyentes siguen vivos (con elementos ya sueltos del DOM) y contaminan a la prueba siguiente.
+  const montados: VueWrapper[] = []
+  afterEach(() => {
+    montados.splice(0).forEach((panel) => panel.unmount())
+  })
+
+  /** El panel se dibuja en `#panel-lateral` (el destino que pone App.vue): aquí se crea a mano. */
+  function montarPanel() {
+    document.body.insertAdjacentHTML('beforeend', '<div id="panel-lateral"></div>')
+    const panel = mount(SidePanel, {
+      props: { titulo: 'Nuevo cliente' },
+      slots: { default: '<input id="campo-a" /><input id="campo-b" />' },
+      attachTo: document.body,
+    })
+    montados.push(panel)
+    return panel
+  }
+
+  function pulsar(tecla: string, opciones: KeyboardEventInit = {}): KeyboardEvent {
+    const evento = new KeyboardEvent('keydown', {
+      key: tecla,
+      bubbles: true,
+      cancelable: true,
+      ...opciones,
+    })
+    document.activeElement?.dispatchEvent(evento)
+    return evento
+  }
+
+  const enPanel = (selector: string) =>
+    document.querySelector<HTMLElement>(`.cc-sidepanel ${selector}`)
+
+  it('es un diálogo modal que flota sobre la página y se llama como su título', () => {
+    montarPanel()
+
+    const panel = document.querySelector('.cc-sidepanel')
+    expect(panel?.classList.contains('cc-sidepanel--overlay')).toBe(true)
+    expect(panel?.getAttribute('role')).toBe('dialog')
+    expect(panel?.getAttribute('aria-modal')).toBe('true')
+    const idTitulo = panel?.getAttribute('aria-labelledby') ?? ''
+    expect(document.getElementById(idTitulo)?.textContent).toBe('Nuevo cliente')
+  })
+
+  it('tapa la página con un fondo, y un clic en el fondo NO lo cierra (nadie pierde lo que escribió)', async () => {
+    const panel = montarPanel()
+
+    const fondo = document.querySelector<HTMLElement>('.cc-sidepanel-backdrop')
+    expect(fondo).not.toBeNull()
+    fondo?.click()
+    await panel.vm.$nextTick()
+
+    expect(panel.emitted('cerrar')).toBeUndefined()
+  })
+
+  it('la X y Esc piden cerrar; Esc funciona aunque el foco haya quedado en el body', () => {
+    const panel = montarPanel()
+
+    enPanel('[aria-label="Cerrar panel"]')?.click()
+    expect(panel.emitted('cerrar')).toHaveLength(1)
+
+    ;(document.activeElement as HTMLElement | null)?.blur()
+    expect(document.activeElement).toBe(document.body)
+    pulsar('Escape')
+    expect(panel.emitted('cerrar')).toHaveLength(2)
+  })
+
+  it('al abrir, el foco va al primer campo', () => {
+    montarPanel()
+
+    expect(document.activeElement?.id).toBe('campo-a')
+  })
+
+  it('Tab en el último control vuelve al primero, y Shift+Tab en el primero va al último', () => {
+    montarPanel()
+    const primero = enPanel('[aria-label="Cerrar panel"]')
+    const ultimo = enPanel('#campo-b')
+
+    ultimo?.focus()
+    const adelante = pulsar('Tab')
+    expect(adelante.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(primero)
+
+    const atras = pulsar('Tab', { shiftKey: true })
+    expect(atras.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(ultimo)
+  })
+
+  it('Tab en el medio no se toca: el navegador sigue su orden normal', () => {
+    montarPanel()
+    enPanel('#campo-a')?.focus()
+
+    expect(pulsar('Tab').defaultPrevented).toBe(false)
+  })
+
+  it('si el foco quedó fuera del panel (clic en el fondo), Tab lo devuelve adentro', () => {
+    montarPanel()
+    ;(document.activeElement as HTMLElement | null)?.blur()
+
+    const evento = pulsar('Tab')
+
+    expect(evento.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(enPanel('[aria-label="Cerrar panel"]'))
+  })
+
+  it('un foco que cae fuera del panel (por ejemplo el botón de un toast) vuelve adentro', () => {
+    montarPanel()
+    const afuera = document.createElement('button')
+    document.body.append(afuera)
+
+    afuera.focus()
+
+    expect(document.activeElement).toBe(enPanel('[aria-label="Cerrar panel"]'))
+  })
+
+  it('al desmontarse devuelve el foco a quien lo abrió y deja de escuchar el teclado', () => {
+    const origen = document.createElement('button')
+    document.body.append(origen)
+    origen.focus()
+    const panel = montarPanel()
+
+    panel.unmount()
+
+    expect(document.activeElement).toBe(origen)
+    // Sin oyentes: ni Esc ni un foco afuera provocan nada (el componente ya no existe).
+    pulsar('Escape')
+    expect(panel.emitted('cerrar')).toBeUndefined()
   })
 })

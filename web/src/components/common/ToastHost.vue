@@ -22,7 +22,7 @@ const ESTILOS: Record<TipoNotificacion, { clase: string; icono: string }> = {
 </script>
 
 <template>
-  <div class="toast-container position-fixed top-0 end-0 p-3" aria-live="polite">
+  <div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" aria-live="polite">
     <div
       v-for="notificacion in notificaciones"
       :key="notificacion.id"

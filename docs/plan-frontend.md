@@ -258,11 +258,11 @@ Código congelado el **26 nov**. Lo que no llegue al 25 nov se recorta empezando
 - [ ] **22 nov · Base en Railway:** crear el servicio MySQL, cargar `schema.sql`, `views.sql` y `procedures.sql`, y datos de prueba. Revisar la zona horaria (`eliminar_pago` usa `CURDATE()`).
 - [ ] **22 nov · Prueba del driver:** `api/` con `package.json` y un `SELECT 1` con `mysql2` contra Railway.
 - [ ] **23 nov · API base:** `env.ts`, `pool.ts`, `llamarProcedure.ts`, `errorHandler`, login y logout con `bcryptjs`, `requireAuth` y `requireRol`.
-- [ ] **23 nov · Front base:** scaffold de create-vue, Bootstrap + `_tokens.scss`, proxy, layout, router con guard, `http.ts`, store `auth`, LoginView.
-- [ ] **24 nov · Reportes de punta a punta:** 5 endpoints de vistas, `ReporteView`, PDF y dashboard.
-- [ ] **24-25 nov · Modificadores:** clientes, repuestos y traslados, pagos (alta y baja), empleados.
-- [ ] **25 nov · Diseño:** aplicar `design/` en `_tokens.scss` y en el layout, si ya existe.
-- [ ] **25-26 nov · ⚠ Facturación y baja de empleado**, según lo que se decida en 7.
+- [x] **23 nov · Front base:** scaffold de create-vue, Bootstrap + `_tokens.scss`, proxy, layout, router con guard, `http.ts`, store `auth`, LoginView.
+- [ ] **24 nov · Reportes de punta a punta:** 5 endpoints de vistas, `ReporteView`, PDF y dashboard. *Front hecho con mocks (`ReporteView`, PDF y dashboard); faltan los 5 endpoints del API.*
+- [ ] **24-25 nov · Modificadores:** clientes, repuestos y traslados, pagos (alta y baja), empleados. *Front hecho con mocks; faltan los endpoints del API.*
+- [x] **25 nov · Diseño:** aplicar `design/` en `_tokens.scss` y en el layout, si ya existe.
+- [ ] **25-26 nov · ⚠ Facturación y baja de empleado**, según lo que se decida en 7. *Front: la factura nueva está hecha con un body propuesto (`web/src/types/factura.ts`); la baja de empleado es un botón deshabilitado con el tooltip "Pendiente". Falta el API de las dos.*
 - [ ] **26 nov · Cierre:** README.txt, `.env.example` de los dos proyectos, prueba en una máquina limpia, y `npm run type-check` + `npm run lint` + `npm run build` en `api/` y `web/`.
 
 ## 7. Pendientes y riesgos
@@ -289,9 +289,11 @@ Código congelado el **26 nov**. Lo que no llegue al 25 nov se recorta empezando
     ```
 
   Recomendación: la transacción desde el API. Muestra el driver haciendo una transacción ACID en la demo y se explica con la misma analogía de 4.1. Hay que decidirlo antes del 24 nov.
+
+  El front ya está hecho con el body propuesto en `web/src/types/factura.ts`. Las 4 decisiones que hay que cerrar con el API (forma de pago, número de factura, IVA y stock) están en *Decisiones pendientes* de [planificacion.md](planificacion.md).
 - **CU-13 Dar de baja empleado:** un `UPDATE tEmpleado SET activo = 0 WHERE codigo_empleado = ?` con `execute`, o un procedure chico. Es baja prioridad.
 - **Roles:** ¿qué valores tiene `tRol`? Hace falta saber cuál código es el de administrador para `requireRol` y el guard. Sale de los datos de prueba o de Carlitos.
 - **Usuario MySQL de la app:** el API no debería entrar como `root`. Crear un usuario con `GRANT SELECT` sobre tablas y vistas, `GRANT EXECUTE` sobre los procedures y `INSERT` sobre las tablas de factura si se hace la transacción desde el API (ver [investigar_bdd.md](../docs/investigar_bdd.md)).
 - **Credenciales:** `api/.env` fuera del repo (falta crear `.gitignore` con `.env` y `node_modules/`). En `web/` no va ningún secreto: lo que lleva `VITE_*` termina en el bundle.
 - **Plan B de la demo:** MySQL local con los mismos `.sql`. Cambiar de base es cambiar las variables `DB_*`.
-- **Registro de conceptos nuevos** (planificación, regla 2): Express y `mysql2` ya están. Faltan `express-session`, `bcryptjs` (reemplaza a `bcrypt` en la fila existente), `zod`, el proxy de Vite y Bootstrap con Sass.
+- **Registro de conceptos nuevos** (planificación, regla 2): Express y `mysql2` ya están. Faltan `express-session`, `bcryptjs` (reemplaza a `bcrypt` en la fila existente), `zod`, el proxy de Vite y Bootstrap con Sass. Los conceptos del front (Pinia, Vue Router, Chart.js y vue-chartjs, jsPDF y autotable, Bootstrap con Sass, Bootstrap Icons, el proxy de Vite, el patrón de mocks intercambiables y Vitest) ya están en *Registro de conceptos nuevos* de la planificación.

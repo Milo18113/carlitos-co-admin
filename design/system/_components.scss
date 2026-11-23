@@ -129,6 +129,28 @@ body { font-variant-numeric: normal; }
 .cc-sidepanel__title { font-size: 1rem; font-weight: 600; margin: 0; }
 .cc-sidepanel__section { padding-top: 1.25rem; border-top: 1px solid $border-color; }
 
+// Variante overlay: el mismo panel, pero flotando sobre la página en vez de ir al lado del contenido.
+// Así abrirlo no angosta la tabla (sin scroll horizontal). Lleva sombra porque flota; el z-index es el
+// del offcanvas de Bootstrap (queda bajo los toasts, que van a 1090). Entra deslizándose desde la
+// derecha; la salida es instantánea (el componente se desmonta de golpe, ver SidePanel.vue).
+.cc-sidepanel--overlay {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: $zindex-offcanvas;
+  width: min(var(--cc-side-panel-width), 100%); box-shadow: $box-shadow-lg;
+  animation: cc-sidepanel-in .2s ease;
+}
+// Fondo detrás del overlay: el mismo velo que Bootstrap pone detrás de un modal.
+.cc-sidepanel-backdrop {
+  position: fixed; inset: 0; z-index: $zindex-offcanvas-backdrop;
+  background: rgba($modal-backdrop-bg, $modal-backdrop-opacity);
+  animation: cc-sidepanel-fade-in .2s ease;
+}
+// Sin `to`: el fotograma final es el estilo normal del elemento.
+@keyframes cc-sidepanel-in { from { transform: translateX(100%); } }
+@keyframes cc-sidepanel-fade-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .cc-sidepanel--overlay, .cc-sidepanel-backdrop { animation: none; }
+}
+
 .cc-shell { display: flex; min-height: 0; background: $white; }
 .cc-shell__main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .cc-shell__body { flex: 1; min-height: 0; display: flex; }
