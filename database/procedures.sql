@@ -556,4 +556,250 @@ END$$
 DELIMITER ;
 
 
+-- -----------------------------------------------------
+-- procedure emitir_factura
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `repuestos_bdd`$$
+DROP PROCEDURE IF EXISTS `emitir_factura`$$
+CREATE PROCEDURE emitir_factura(IN p_numero_identificacion VARCHAR(45),
+IN p_codigo_empleado VARCHAR(45),
+IN p_codigo_bodega VARCHAR(45),
+IN p_detalle TEXT)
+
+proc: BEGIN
+DECLARE v_iva DECIMAL(5,2) DEFAULT 15.00;
+DECLARE v_lineas INT;
+DECLARE i INT DEFAULT 0;
+DECLARE v_numero VARCHAR(45);
+DECLARE v_siguiente INT;
+DECLARE v_codigo_oe VARCHAR(45);
+DECLARE v_tipo_cant VARCHAR(20);
+DECLARE v_tipo_desc VARCHAR(20);
+DECLARE v_cantidad INT;
+DECLARE v_descuento DECIMAL(5,2);
+DECLARE v_precio DECIMAL(10,2);
+DECLARE v_stock INT;
+DECLARE v_minimo INT;
+DECLARE v_bajo_min VARCHAR(500) DEFAULT '';
+DECLARE v_total DECIMAL(14,2);
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+ROLLBACK;
+
+SELECT 'ROLLBACK: error de SQL, no se emitio la factura ni se toco el stock' AS mensaje;
+END;
+
+START TRANSACTION;
+IF NOT EXISTS (SELECT * FROM tCliente WHERE numero_identificacion = p_numero_identificacion) THEN
+ROLLBACK;
+SELECT CONCAT('ROLLBACK: el cliente ', IFNULL(p_numero_identificacion, 'NULL'), ' no existe') AS mensaje;
+LEAVE proc;
+END IF;
+
+IF NOT EXISTS (SELECT * FROM tEmpleado
+WHERE codigo_empleado = p_codigo_empleado AND activo = 1) THEN
+ROLLBACK;
+SELECT CONCAT('ROLLBACK: el empleado ', IFNULL(p_codigo_empleado, 'NULL'),
+' no existe o esta dado de baja') AS mensaje;
+LEAVE proc;
+END IF;
+
+IF NOT EXISTS (SELECT * FROM tBodega WHERE codigo_bodega = p_codigo_bodega) THEN
+ROLLBACK;
+SELECT CONCAT('ROLLBACK: la bodega ', IFNULL(p_codigo_bodega, 'NULL'), ' no existe') AS mensaje;
+LEAVE proc;
+END IF;
+
+IF p_detalle IS NULL OR JSON_VALID(p_detalle) = 0
+OR JSON_TYPE(p_detalle) <> 'ARRAY' OR JSON_LENGTH(p_detalle) = 0 THEN
+ROLLBACK;
+
+SELECT 'ROLLBACK: la factura necesita al menos una linea de detalle' AS mensaje;
+LEAVE proc;
+END IF;
+SET v_lineas = JSON_LENGTH(p_detalle);
+
+SELECT COALESCE(MAX(CAST(SUBSTRING(numero_factura, 9) AS UNSIGNED)), 0) + 1
+INTO v_siguiente
+FROM tFactura
+WHERE numero_factura LIKE '001-001-%'
+FOR UPDATE;
+SET v_numero = CONCAT('001-001-', LPAD(v_siguiente, 9, '0'));
+
+INSERT INTO tFactura (numero_factura, fecha_emision, porcentaje_iva, estado,
+tCliente_numero_identificacion, tEmpleado_codigo_empleado)
+VALUES (v_numero, CURDATE(), v_iva, 'EMITIDA', p_numero_identificacion, p_codigo_empleado);
+
+lineas: WHILE i < v_lineas DO
+SET v_codigo_oe = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].codigo_oe')));
+SET v_tipo_cant = JSON_TYPE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].cantidad')));
+SET v_tipo_desc = JSON_TYPE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].descuento')));
+
+IF v_tipo_cant IS NULL OR v_tipo_cant NOT IN ('INTEGER', 'UNSIGNED INTEGER') THEN
+ROLLBACK;
+
+SELECT CONCAT('ROLLBACK: linea ', i + 1, ': la cantidad debe ser un numero entero') AS mensaje;
+LEAVE proc;
+END IF;
+SET v_cantidad = JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].cantidad'));
+
+IF v_tipo_desc IS NULL OR v_tipo_desc = 'NULL' THEN
+SET v_descuento = 0;
+ELSEIF v_tipo_desc NOT IN ('INTEGER', 'UNSIGNED INTEGER', 'DOUBLE', 'DECIMAL') THEN
+ROLLBACK;
+
+SELECT CONCAT('ROLLBACK: linea ', i + 1, ': el descuento debe ser un numero') AS mensaje;
+LEAVE proc;
+ELSE
+SET v_descuento = JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].descuento'));
+END IF;
+
+IF v_cantidad <= 0 THEN
+ROLLBACK;
+
+SELECT CONCAT('ROLLBACK: linea ', i + 1, ': la cantidad debe ser mayor que 0') AS mensaje;
+LEAVE proc;
+END IF;
+IF v_descuento < 0 OR v_descuento > 100 THEN
+ROLLBACK;
+
+SELECT CONCAT('ROLLBACK: linea ', i + 1, ': el descuento va de 0 a 100') AS mensaje;
+LEAVE proc;
+END IF;
+
+SET v_precio = NULL;
+SELECT precio_venta, stock_minimo INTO v_precio, v_minimo
+FROM tProducto
+WHERE codigo_oe = v_codigo_oe;
+IF v_precio IS NULL THEN
+ROLLBACK;
+
+SELECT CONCAT('ROLLBACK: linea ', i + 1, ': el repuesto ', IFNULL(v_codigo_oe, 'NULL'),
+' no existe') AS mensaje;
+LEAVE proc;
+END IF;
+
+IF EXISTS (SELECT * FROM tDetalleFactura
+WHERE tFactura_numero_factura = v_numero
+AND tProducto_codigo_oe = v_codigo_oe) THEN
+ROLLBACK;
+
+SELECT CONCAT('ROLLBACK: el repuesto ', v_codigo_oe,
+' esta repetido en el carrito; suma las cantidades en una sola linea') AS mensaje;
+LEAVE proc;
+END IF;
+
+SET v_stock = NULL;
+SELECT cantidad INTO v_stock
+FROM tInventario
+WHERE tBodega_codigo_bodega = p_codigo_bodega
+AND tProducto_codigo_oe = v_codigo_oe
+FOR UPDATE;
+
+IF v_stock IS NULL OR v_stock < v_cantidad THEN
+ROLLBACK;
+
+SELECT CONCAT('ROLLBACK: linea ', i + 1, ': la bodega ', p_codigo_bodega, ' solo tiene ',
+IFNULL(v_stock, 0), ' unidad(es) de ', v_codigo_oe,
+' y se piden ', v_cantidad) AS mensaje;
+LEAVE proc;
+END IF;
+
+INSERT INTO tDetalleFactura (tProducto_codigo_oe, tFactura_numero_factura,
+cantidad, precio_unitario, porcentaje_descuento)
+VALUES (v_codigo_oe, v_numero, v_cantidad, v_precio, v_descuento);
+
+UPDATE tInventario
+SET cantidad = cantidad - v_cantidad
+WHERE tBodega_codigo_bodega = p_codigo_bodega
+AND tProducto_codigo_oe = v_codigo_oe;
+
+IF v_stock - v_cantidad < v_minimo THEN
+SET v_bajo_min = CONCAT(v_bajo_min, ' ', v_codigo_oe, ' (quedan ', v_stock - v_cantidad, ')');
+END IF;
+
+SET i = i + 1;
+END WHILE lineas;
+
+SET v_total = ROUND((SELECT SUM(cantidad * precio_unitario * (1 - porcentaje_descuento/100))
+FROM tDetalleFactura
+WHERE tFactura_numero_factura = v_numero) * (1 + v_iva/100), 2);
+COMMIT;
+
+SELECT CONCAT('COMMIT: factura ', v_numero, ' emitida por ', v_total, ' (', v_lineas, ' linea(s))',
+IF(v_bajo_min = '', '', CONCAT('. Aviso: bajo el stock minimo en ', p_codigo_bodega, ':', v_bajo_min)))
+AS mensaje,
+v_numero AS numero_factura,
+v_total  AS total;
+END$$
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure dar_baja_empleado
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `repuestos_bdd`$$
+DROP PROCEDURE IF EXISTS `dar_baja_empleado`$$
+CREATE PROCEDURE dar_baja_empleado(IN p_codigo_empleado VARCHAR(45))
+
+proc: BEGIN
+DECLARE v_rol_admin INT DEFAULT 1; 
+DECLARE v_activo TINYINT;
+DECLARE v_rol INT;
+DECLARE v_admins INT;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+ROLLBACK;
+
+SELECT 'ROLLBACK: error de SQL, el empleado sigue activo' AS mensaje;
+END;
+
+START TRANSACTION;
+SELECT COUNT(*) INTO v_admins
+FROM tEmpleado
+WHERE tRol_codigo_rol = v_rol_admin AND activo = 1
+FOR UPDATE;
+
+SET v_activo = NULL;
+SELECT activo, tRol_codigo_rol INTO v_activo, v_rol
+FROM tEmpleado
+WHERE codigo_empleado = p_codigo_empleado
+FOR UPDATE;
+
+IF v_activo IS NULL THEN
+ROLLBACK;
+
+SELECT CONCAT('ROLLBACK: el empleado ', IFNULL(p_codigo_empleado, 'NULL'), ' no existe') AS mensaje;
+LEAVE proc;
+END IF;
+
+IF v_activo = 0 THEN
+ROLLBACK;
+
+SELECT CONCAT('ROLLBACK: el empleado ', p_codigo_empleado, ' ya estaba dado de baja') AS mensaje;
+LEAVE proc;
+END IF;
+
+IF v_rol = v_rol_admin AND v_admins <= 1 THEN
+ROLLBACK;
+
+SELECT CONCAT('ROLLBACK: ', p_codigo_empleado,
+' es el unico administrador activo; activa otro antes de darlo de baja') AS mensaje;
+LEAVE proc;
+END IF;
+
+UPDATE tEmpleado
+SET activo = 0
+WHERE codigo_empleado = p_codigo_empleado;
+COMMIT;
+
+SELECT CONCAT('COMMIT: el empleado ', p_codigo_empleado,
+' quedo inactivo (activo = 0); ya no puede iniciar sesion ni facturar') AS mensaje;
+END$$
+DELIMITER ;
+
 SET SQL_MODE=@OLD_SQL_MODE;
