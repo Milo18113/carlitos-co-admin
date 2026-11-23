@@ -19,11 +19,6 @@
   font-size: 2rem;
 }
 
-// Logo sin marco hasta que exista la versión con fondo transparente (DESIGN.md › Pendiente).
-.cc-brand__mark {
-  border: 0;
-}
-
 // Fondo "surface-subtle" para páginas completas (login), como el fondo de .cc-shell__content.
 .cc-surface-subtle {
   background: var(--cc-surface-subtle);
@@ -31,6 +26,13 @@
 .cc-login {
   width: 100%;
   max-width: 25rem;
+}
+// Logo completo del login: centrado y a 9rem de ancho (el PNG mide 558px, sobra para pantallas retina).
+.cc-login__logo {
+  display: block;
+  width: 9rem;
+  height: auto;
+  margin: 0 auto 0.25rem;
 }
 
 // El ícono de un badge acompaña a un texto de 12px: va a 12px (DESIGN.md: `.badge .cc-icon`), no a 18px.

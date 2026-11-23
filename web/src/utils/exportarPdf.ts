@@ -37,7 +37,18 @@ export function construirPdf(opciones: OpcionesPdf): jsPDF {
   if (opciones.logo) {
     const { dataUrl, ancho, alto } = opciones.logo
     const anchoLogo = ALTO_LOGO_MM * (ancho / alto)
-    doc.addImage(dataUrl, formatoDeImagen(dataUrl), MARGEN_MM, 10, anchoLogo, ALTO_LOGO_MM)
+    // 'FAST': por defecto jsPDF guarda las imágenes sin comprimir, y el PNG del logo (con transparencia)
+    // llevaba el PDF de ~100 kB a casi 1 MB. El `undefined` es el alias, que no se usa.
+    doc.addImage(
+      dataUrl,
+      formatoDeImagen(dataUrl),
+      MARGEN_MM,
+      10,
+      anchoLogo,
+      ALTO_LOGO_MM,
+      undefined,
+      'FAST',
+    )
     xTexto = MARGEN_MM + anchoLogo + 4
   }
 

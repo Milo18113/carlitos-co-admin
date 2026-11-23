@@ -5,12 +5,14 @@ El front lo traduce en un solo archivo: `web/src/assets/styles/_tokens.scss` (ve
 
 ## Referencias
 
-> **Vista previa viva:** [`system.html`](system.html) muestra todos los tokens y componentes de este documento con Bootstrap real. Sus estilos están en [`system/`](system/): `_tokens.scss` y `_components.scss` son los que pasan tal cual al front; `_docs.scss` es solo de la página de muestra. Si algo de este documento cambia, se cambia también ahí y se recompila (comando en [`system/system.scss`](system/system.scss)).
+> **Vista previa viva:** [`system.html`](system.html) muestra todos los tokens y componentes de este documento con Bootstrap real. Sus estilos están en [`system/`](system/): `_tokens.scss`, `_components.scss` y `logo.png` son los que pasan tal cual al front (a `web/src/assets/styles/`); `_docs.scss` es solo de la página de muestra. Si algo de este documento cambia, se cambia también ahí y se recompila (comando en [`system/system.scss`](system/system.scss)).
 
 | Archivo | Qué es | Para qué se usa |
 | --- | --- | --- |
 | [`color_palette.jpeg`](color_palette.jpeg) | Paleta oficial de Carlitos (5 colores) | Base de todos los colores de marca |
-| [`logo.jpg`](logo.jpg) | Logo "Carlitosco Importaciones" | Sidebar, login, portada de PDFs |
+| [`system/logo.png`](system/logo.png) | Logo "Carlitosco Importaciones" con fondo transparente (`system/logo.psd` es el original editable) | Sidebar, login, portada de PDFs e ícono de la pestaña |
+| [`system/logo_full.png`](system/logo_full.png) | El mismo logo con el nombre "Carlitosco Importaciones" debajo, fondo transparente | Login (copia en `web/src/assets/logo_full.png`) |
+| [`logo.jpg`](logo.jpg) | Primera versión del logo, con fondo blanco | Solo respaldo: ya no se usa |
 | [`dashboard_design.mp4`](dashboard_design.mp4) | Referencia de layout (CRM "Brisk") | Estructura: sidebar, topbar, toolbar, gráfico + tabla, panel lateral |
 
 Del video se toma **la estructura y el tono** (superficies blancas planas, bordes de 1px, sombras mínimas, grises fríos, CTA oscuro). No se copian su marca, iconos ni textos.
@@ -186,7 +188,7 @@ Cada uno con su equivalente en Bootstrap. "SCSS propio" significa que va en `web
 
 | Componente | Base Bootstrap | Especificación |
 | --- | --- | --- |
-| **AppSidebar** | `nav flex-column`, `collapse`, `offcanvas` (móvil) | Logo 40px con `radius-sm` + nombre (`text-base` 600) y subtítulo (`text-xs`, `gray-500`). Ítems de 40px, ícono 18px `gray-700`, texto `gray-800`. Hover `gray-50`; activo `gray-100` + texto `gray-900` 500. Grupos separados con borde `border`. Subítems con línea guía punteada `gray-300` a la izquierda (SCSS propio). Usuario y sign-out al fondo. |
+| **AppSidebar** | `nav flex-column`, `collapse`, `offcanvas` (móvil) | Logo 40px (PNG transparente, sin marco ni fondo) + nombre (`text-base` 600) y subtítulo (`text-xs`, `gray-500`). Ítems de 40px, ícono 18px `gray-700`, texto `gray-800`. Hover `gray-50`; activo `gray-100` + texto `gray-900` 500. Grupos separados con borde `border`. Subítems con línea guía punteada `gray-300` a la izquierda (SCSS propio). Usuario y sign-out al fondo. |
 | **AppTopbar** | `d-flex` + `form-control` | Título `text-lg`. A la derecha: botón ícono (36×36, neutro), buscador con ícono (ancho 240px) y acción principal. Borde inferior `border`. |
 | **Botón primario** | `btn-primary` | Navy, texto blanco 500, `radius`, 36px. Una sola acción primaria por vista (Guardar, Nuevo, Exportar). |
 | **Botón neutro** | `.btn-neutral` (SCSS propio con el mixin `button-variant`) | Fondo blanco, borde `gray-300`, texto `gray-800`, `shadow-xs`; hover `gray-50`. Es el botón más común (Filtrar, Ordenar, Descartar, Descargar). |
@@ -407,4 +409,4 @@ Orden en `main.scss`:
 
 - [ ] Tipografía (actualizar `$cc-font-sans`)
 - [ ] Librería de íconos: **Bootstrap Icons** (misma familia, cero decisiones extra) o **Lucide** (`lucide-vue-next`, trazo fino, más parecido al video). Cualquiera de las dos va al *Registro de conceptos nuevos*.
-- [ ] Versión del logo con fondo transparente (PNG/SVG) para el sidebar; `logo.jpg` tiene fondo blanco y se ve cargado a 40px.
+- [x] Versión del logo con fondo transparente (PNG/SVG) para el sidebar; `logo.jpg` tiene fondo blanco y se ve cargado a 40px. → `system/logo.png`.

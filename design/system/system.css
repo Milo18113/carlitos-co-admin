@@ -12005,9 +12005,7 @@ body {
   width: 40px;
   height: 40px;
   flex: none;
-  border-radius: 6px;
-  border: 1px solid #E1E7ED;
-  background: #FFFFFF url("../logo.jpg") center/220% no-repeat;
+  background: url("logo.png") center/contain no-repeat;
 }
 
 .cc-brand__name {

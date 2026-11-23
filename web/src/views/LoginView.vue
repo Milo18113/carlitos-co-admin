@@ -2,6 +2,7 @@
 import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import logoCompleto from '@/assets/logo_full.png'
 import AppIcon from '@/components/common/AppIcon.vue'
 import FormField from '@/components/common/FormField.vue'
 import { env } from '@/config/env'
@@ -37,16 +38,13 @@ async function enviar(): Promise<void> {
   <main class="cc-surface-subtle min-vh-100 d-flex align-items-center justify-content-center p-3">
     <div class="card cc-login">
       <div class="card-body p-4">
-        <div class="cc-brand px-0 mb-3">
-          <div class="cc-brand__mark" role="img" aria-label="Logo Carlitosco"></div>
-          <div>
-            <div class="cc-brand__name">Carlitosco</div>
-            <div class="cc-brand__sub">Panel de administración</div>
-          </div>
+        <!-- El logo completo ya trae el nombre ("Carlitosco Importaciones"), no hace falta texto aparte -->
+        <div class="text-center mb-3">
+          <img :src="logoCompleto" alt="Carlitosco Importaciones" class="cc-login__logo" />
         </div>
 
-        <h1 class="h2 mb-1">Iniciar sesión</h1>
-        <p class="text-body-secondary mb-4">Ingresa con tu usuario de empleado.</p>
+        <h1 class="h2 mb-1 text-center">Iniciar sesión</h1>
+        <p class="text-body-secondary mb-4 text-center">Ingresa con tu usuario de empleado.</p>
 
         <div v-if="auth.error" class="alert alert-danger" role="alert">
           <AppIcon nombre="x-circle" />

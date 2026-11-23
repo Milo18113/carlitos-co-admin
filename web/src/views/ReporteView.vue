@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 
 import BotonPdf from '@/components/reportes/BotonPdf.vue'
 import ReporteTable from '@/components/reportes/ReporteTable.vue'
-import logoUrl from '@/assets/logo.jpg'
+import logoUrl from '@/assets/styles/logo.png'
 import { useFiltroUrl } from '@/composables/useFiltroUrl'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificacionesStore } from '@/stores/notificaciones'
