@@ -113,7 +113,7 @@ Las 4 decisiones por cerrar están en *Decisiones pendientes* de [planificacion.
 
 ### Otros
 
-- **CU-13, dar de baja a un empleado:** no hay endpoint. En el front es un botón deshabilitado con el tooltip "Pendiente".
+- **CU-13, dar de baja a un empleado:** no hay endpoint. En el front es un botón deshabilitado con el tooltip "Pendiente". **Decisión: los empleados nunca se borran, solo se desactivan.** La baja es un `UPDATE tEmpleado SET activo = 0` (ruta propuesta: `PATCH /api/empleados/:codigo/baja`) y nunca un `DELETE`, porque `tFactura` y `tCompra` apuntan al empleado con una FK obligatoria: borrarlo falla, o pierde el historial de quién emitió cada factura. El empleado inactivo sigue en el reporte `empleados` (columna `activo`), no puede iniciar sesión, y `contratar_empleado` lo reactiva con su misma cédula conservando su código.
 - **Códigos que el front da por supuestos** y hay que confirmar contra los datos reales:
   - Tipos de identificación `04` (RUC, 13 dígitos), `05` (cédula, 10 dígitos) y `07` (consumidor final, `9999999999999`).
   - Roles `1` (Administrador) y `2` (Vendedor), en `web/src/config/roles.ts`.

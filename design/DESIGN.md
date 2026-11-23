@@ -10,7 +10,7 @@ El front lo traduce en un solo archivo: `web/src/assets/styles/_tokens.scss` (ve
 | Archivo | Qué es | Para qué se usa |
 | --- | --- | --- |
 | [`color_palette.jpeg`](color_palette.jpeg) | Paleta oficial de Carlitos (5 colores) | Base de todos los colores de marca |
-| [`system/logo.png`](system/logo.png) | Logo "Carlitosco Importaciones" con fondo transparente (`system/logo.psd` es el original editable) | Sidebar, login, portada de PDFs e ícono de la pestaña |
+| [`system/logo.png`](system/logo.png) | Logo "Carlitosco Importaciones" con fondo transparente (`system/logo.psd` es el original editable) | Sidebar. De él salen el logo de 192 px del PDF (`web/src/assets/logo_pdf.png`) y el favicon (`web/public/favicon.*`) |
 | [`system/logo_full.png`](system/logo_full.png) | El mismo logo con el nombre "Carlitosco Importaciones" debajo, fondo transparente | Login (copia en `web/src/assets/logo_full.png`) |
 | [`logo.jpg`](logo.jpg) | Primera versión del logo, con fondo blanco | Solo respaldo: ya no se usa |
 | [`dashboard_design.mp4`](dashboard_design.mp4) | Referencia de layout (CRM "Brisk") | Estructura: sidebar, topbar, toolbar, gráfico + tabla, panel lateral |

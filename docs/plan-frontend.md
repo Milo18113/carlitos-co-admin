@@ -291,7 +291,7 @@ Código congelado el **26 nov**. Lo que no llegue al 25 nov se recorta empezando
   Recomendación: la transacción desde el API. Muestra el driver haciendo una transacción ACID en la demo y se explica con la misma analogía de 4.1. Hay que decidirlo antes del 24 nov.
 
   El front ya está hecho con el body propuesto en `web/src/types/factura.ts`. Las 4 decisiones que hay que cerrar con el API (forma de pago, número de factura, IVA y stock) están en *Decisiones pendientes* de [planificacion.md](planificacion.md).
-- **CU-13 Dar de baja empleado:** un `UPDATE tEmpleado SET activo = 0 WHERE codigo_empleado = ?` con `execute`, o un procedure chico. Es baja prioridad.
+- **CU-13 Dar de baja empleado:** un `UPDATE tEmpleado SET activo = 0 WHERE codigo_empleado = ?` con `execute`, o un procedure chico. Es baja prioridad. **Nunca un `DELETE`:** los empleados solo se desactivan (las facturas y compras los referencian, y `contratar_empleado` los reactiva con la misma cédula).
 - **Roles:** ¿qué valores tiene `tRol`? Hace falta saber cuál código es el de administrador para `requireRol` y el guard. Sale de los datos de prueba o de Carlitos.
 - **Usuario MySQL de la app:** el API no debería entrar como `root`. Crear un usuario con `GRANT SELECT` sobre tablas y vistas, `GRANT EXECUTE` sobre los procedures y `INSERT` sobre las tablas de factura si se hace la transacción desde el API (ver [investigar_bdd.md](../docs/investigar_bdd.md)).
 - **Credenciales:** `api/.env` fuera del repo (falta crear `.gitignore` con `.env` y `node_modules/`). En `web/` no va ningún secreto: lo que lleva `VITE_*` termina en el bundle.

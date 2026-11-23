@@ -3,7 +3,8 @@ import { computed, ref, watch } from 'vue'
 
 import BotonPdf from '@/components/reportes/BotonPdf.vue'
 import ReporteTable from '@/components/reportes/ReporteTable.vue'
-import logoUrl from '@/assets/styles/logo.png'
+// Versión de 192 px solo para el PDF (16 mm de alto a ~300 dpi): la de 482 px de la página pesaba de más.
+import logoUrl from '@/assets/logo_pdf.png'
 import { useFiltroUrl } from '@/composables/useFiltroUrl'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificacionesStore } from '@/stores/notificaciones'
