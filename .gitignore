@@ -7,6 +7,9 @@
 # entorno
 .env
 
+# datos reales de la empresa: personales y demasiado grandes para GitHub (límite 100 MB)
+database/old_data/
+
 # dependencias y build
 node_modules/
 dist/
